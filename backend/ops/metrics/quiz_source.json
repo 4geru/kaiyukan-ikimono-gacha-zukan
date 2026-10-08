@@ -1,0 +1,18 @@
+{
+  "name": "quiz_source",
+  "description": "出題の出どころ（作り置き pool / その場生成 live-*）の件数。プールに落ちなかった理由（poolMissReason）別",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"quiz_generated\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "unit": "1",
+    "labels": [
+      {"key": "generatedBy", "valueType": "STRING"},
+      {"key": "poolMissReason", "valueType": "STRING"}
+    ]
+  },
+  "labelExtractors": {
+    "generatedBy": "EXTRACT(jsonPayload.generatedBy)",
+    "poolMissReason": "EXTRACT(jsonPayload.poolMissReason)"
+  }
+}

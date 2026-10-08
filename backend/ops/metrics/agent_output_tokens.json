@@ -1,0 +1,20 @@
+{
+  "name": "agent_output_tokens",
+  "description": "エージェント1回のoutputトークン数の分布（取れなかった回 \"none\" は除く）。費用は 単価 x 合計で読む",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"agent_run\" AND NOT jsonPayload.outputTokens=\"none\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "DISTRIBUTION",
+    "unit": "1",
+    "labels": [
+      {"key": "agent", "valueType": "STRING"},
+      {"key": "model", "valueType": "STRING"}
+    ]
+  },
+  "valueExtractor": "EXTRACT(jsonPayload.outputTokens)",
+  "labelExtractors": {
+    "agent": "EXTRACT(jsonPayload.agent)",
+    "model": "EXTRACT(jsonPayload.model)"
+  },
+  "bucketOptions": {"exponentialBuckets": {"numFiniteBuckets": 32, "growthFactor": 1.5, "scale": 100}}
+}

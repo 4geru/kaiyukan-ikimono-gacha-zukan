@@ -1,0 +1,7 @@
+node_modules/
+.cache/
+.env*
+!.env.sample
+dist-liff/
+.firebase/
+.DS_Store

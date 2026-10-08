@@ -1,0 +1,43 @@
+{
+  "type": "flex",
+  "altText": "候補: ジンベエザメ",
+  "contents": {
+    "type": "bubble",
+    "hero": {
+      "type": "image",
+      "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/048_jinbezame_thumb.jpg",
+      "size": "full",
+      "aspectRatio": "1:1",
+      "aspectMode": "cover"
+    },
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "text",
+          "text": "ジンベエザメ",
+          "weight": "bold",
+          "size": "lg",
+          "wrap": true
+        }
+      ]
+    },
+    "footer": {
+      "type": "box",
+      "layout": "vertical",
+      "contents": [
+        {
+          "type": "button",
+          "style": "primary",
+          "action": {
+            "type": "postback",
+            "label": "これを選ぶ",
+            "data": "action=selectFish&animalId=48",
+            "displayText": "ジンベエザメ"
+          }
+        }
+      ]
+    }
+  }
+}

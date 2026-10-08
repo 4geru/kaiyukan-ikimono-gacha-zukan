@@ -1,0 +1,232 @@
+{
+  "type": "flex",
+  "altText": "🧬 しんせきの仲間: アカイサキ、タマカイ、キンギョハナダイ",
+  "contents": {
+    "type": "carousel",
+    "contents": [
+      {
+        "type": "bubble",
+        "size": "kilo",
+        "header": {
+          "type": "box",
+          "layout": "vertical",
+          "backgroundColor": "#8E7CC3",
+          "paddingAll": "md",
+          "contents": [
+            {
+              "type": "text",
+              "text": "🧬 しんせきの仲間",
+              "color": "#FFFFFF",
+              "weight": "bold",
+              "size": "sm"
+            }
+          ]
+        },
+        "hero": {
+          "type": "image",
+          "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/116_akaisaki_thumb.jpg",
+          "size": "full",
+          "aspectRatio": "1:1",
+          "aspectMode": "cover"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "spacing": "xs",
+          "contents": [
+            {
+              "type": "text",
+              "text": "アカイサキ",
+              "weight": "bold",
+              "size": "md",
+              "wrap": true
+            },
+            {
+              "type": "text",
+              "text": "🌊 日本海溝展示エリア",
+              "size": "xs",
+              "color": "#8A94A6",
+              "wrap": true
+            }
+          ]
+        },
+        "footer": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "button",
+              "style": "primary",
+              "color": "#8E7CC3",
+              "action": {
+                "type": "postback",
+                "label": "見つけた！",
+                "data": "action=selectFish&animalId=116",
+                "displayText": "アカイサキを見つけた！"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "bubble",
+        "size": "kilo",
+        "header": {
+          "type": "box",
+          "layout": "vertical",
+          "backgroundColor": "#8E7CC3",
+          "paddingAll": "md",
+          "contents": [
+            {
+              "type": "text",
+              "text": "🧬 しんせきの仲間",
+              "color": "#FFFFFF",
+              "weight": "bold",
+              "size": "sm"
+            }
+          ]
+        },
+        "hero": {
+          "type": "image",
+          "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/066_tamakai_thumb.jpg",
+          "size": "full",
+          "aspectRatio": "1:1",
+          "aspectMode": "cover"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "spacing": "xs",
+          "contents": [
+            {
+              "type": "text",
+              "text": "タマカイ",
+              "weight": "bold",
+              "size": "md",
+              "wrap": true
+            },
+            {
+              "type": "text",
+              "text": "🌊 太平洋展示エリア",
+              "size": "xs",
+              "color": "#8A94A6",
+              "wrap": true
+            }
+          ]
+        },
+        "footer": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "button",
+              "style": "primary",
+              "color": "#8E7CC3",
+              "action": {
+                "type": "postback",
+                "label": "見つけた！",
+                "data": "action=selectFish&animalId=66",
+                "displayText": "タマカイを見つけた！"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "bubble",
+        "size": "kilo",
+        "header": {
+          "type": "box",
+          "layout": "vertical",
+          "backgroundColor": "#8E7CC3",
+          "paddingAll": "md",
+          "contents": [
+            {
+              "type": "text",
+              "text": "🧬 しんせきの仲間",
+              "color": "#FFFFFF",
+              "weight": "bold",
+              "size": "sm"
+            }
+          ]
+        },
+        "hero": {
+          "type": "image",
+          "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/160_kingyohanadai_thumb.jpg",
+          "size": "full",
+          "aspectRatio": "1:1",
+          "aspectMode": "cover"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "spacing": "xs",
+          "contents": [
+            {
+              "type": "text",
+              "text": "キンギョハナダイ",
+              "weight": "bold",
+              "size": "md",
+              "wrap": true
+            },
+            {
+              "type": "text",
+              "text": "🌊 グレート・バリア・リーフ展示エリア",
+              "size": "xs",
+              "color": "#8A94A6",
+              "wrap": true
+            }
+          ]
+        },
+        "footer": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "button",
+              "style": "primary",
+              "color": "#8E7CC3",
+              "action": {
+                "type": "postback",
+                "label": "見つけた！",
+                "data": "action=selectFish&animalId=160",
+                "displayText": "キンギョハナダイを見つけた！"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "quickReply": {
+    "items": [
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "すいそうの仲間",
+          "data": "action=showTankmates&animalId=61",
+          "displayText": "すいそうの仲間を見る"
+        }
+      },
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "しんせきの仲間",
+          "data": "action=showFamily&animalId=61",
+          "displayText": "しんせきの仲間を見る"
+        }
+      },
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "クイズ",
+          "data": "action=startQuiz&animalId=61",
+          "displayText": "クイズに挑戦する"
+        }
+      }
+    ]
+  }
+}

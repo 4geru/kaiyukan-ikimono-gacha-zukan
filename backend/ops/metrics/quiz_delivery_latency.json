@@ -1,0 +1,14 @@
+{
+  "name": "quiz_delivery_latency",
+  "description": "「クイズ」を押してから問題が届くまでの時間（ミリ秒）の分布。出どころ別",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"quiz_delivered\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "DISTRIBUTION",
+    "unit": "ms",
+    "labels": [{"key": "generatedBy", "valueType": "STRING"}]
+  },
+  "valueExtractor": "EXTRACT(jsonPayload.totalMs)",
+  "labelExtractors": {"generatedBy": "EXTRACT(jsonPayload.generatedBy)"},
+  "bucketOptions": {"exponentialBuckets": {"numFiniteBuckets": 32, "growthFactor": 1.4, "scale": 100}}
+}

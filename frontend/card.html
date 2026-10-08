@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>いきものカード</title>
+<style>
+  :root {
+    --bg-top: #062038;
+    --bg-bottom: #01060f;
+    --text: #f3f6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(ellipse at 50% 15%, var(--bg-top), var(--bg-bottom) 70%);
+    color: var(--text);
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    overflow-x: hidden;
+  }
+  .app {
+    min-height: 100%;
+    min-height: 100dvh;
+    /* 上は右上のランクバッジとカードが重ならない分あける */
+    padding: 52px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: min(70vw, 260px);
+    aspect-ratio: 1 / 1;
+    border-radius: 18px;
+    overflow: hidden;
+    position: relative;
+    background: #0e1830;
+    border: 3px solid #8fa5c9;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card[data-rarity="normal"] { border-color: #b9c6dd; }
+  .card[data-rarity="rare"] { border-color: #6fc7ff; box-shadow: 0 0 24px 4px rgba(111,199,255,0.6); }
+  .card[data-rarity="super"] { border-color: #ffd166; border-width: 4px; box-shadow: 0 0 30px 6px rgba(255,209,102,0.7); }
+
+  .name { font-size: 20px; font-weight: bold; margin-top: 16px; text-align: center; }
+  .sub-name { font-size: 12px; opacity: 0.7; text-align: center; margin-top: 2px; }
+  .complete-badge {
+    display: inline-block;
+    margin-top: 8px;
+    background: #ffd166;
+    color: #4a2200;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 12px;
+    border-radius: 999px;
+  }
+
+  /* 知識欄: 見出し＋進み具合 → 開いた知識のカード → まだの知識のタイル */
+  .knowledge-list { width: 100%; max-width: 360px; margin-top: 28px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 8px; }
+  .section-head h2 { font-size: 15px; margin: 0; letter-spacing: 0.08em; }
+  .section-head .count { font-size: 13px; font-weight: bold; color: #7fe3ff; font-variant-numeric: tabular-nums; }
+  .section-head .count small { font-size: 11px; opacity: 0.6; font-weight: normal; }
+  .progress { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 16px; }
+  .progress span { display: block; height: 100%; border-radius: inherit;
+    background: linear-gradient(90deg, #3fb6ff, #7fe3ff 60%, #b6fff1); box-shadow: 0 0 10px rgba(127,227,255,0.6);
+    width: 0; transition: width 0.9s cubic-bezier(.2,.8,.2,1); }
+
+  /* カテゴリの系統ごとの色（場所・仲間・からだ・おもしろ） */
+  .knowledge-item, .locked-tile { --c: #7fe3ff; }
+  [data-group="place"] { --c: #5cc8ff; }
+  [data-group="mates"] { --c: #6fe0a8; }
+  [data-group="body"] { --c: #c4a2ff; }
+  [data-group="fun"] { --c: #ffc65c; }
+
+  .knowledge-open { display: flex; flex-direction: column; gap: 10px; }
+  .knowledge-item {
+    display: grid; grid-template-columns: 40px 1fr; gap: 2px 12px; align-items: start;
+    background: linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid var(--c);
+    border-radius: 14px; padding: 12px 14px;
+    animation: rise 0.5s both; animation-delay: calc(var(--i, 0) * 70ms);
+  }
+  .knowledge-item .icon {
+    grid-row: span 2; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-size: 20px;
+    background: color-mix(in srgb, var(--c) 18%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent);
+  }
+  .knowledge-item .label { font-size: 11px; font-weight: bold; color: var(--c); letter-spacing: 0.06em; padding-top: 2px; }
+  .knowledge-item .value { font-size: 14px; line-height: 1.65; }
+
+  .locked-head { display: flex; justify-content: space-between; align-items: baseline; margin: 22px 2px 8px; font-size: 12px; opacity: 0.75; }
+  .knowledge-locked { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .locked-tile {
+    border: 1px dashed rgba(255,255,255,0.18); border-radius: 12px; padding: 10px 4px 8px; text-align: center;
+    background: rgba(255,255,255,0.02); position: relative;
+  }
+  .locked-tile .icon { font-size: 20px; filter: grayscale(1) brightness(0.7); opacity: 0.55; display: block; }
+  .locked-tile .label { font-size: 10.5px; opacity: 0.6; display: block; margin-top: 4px; line-height: 1.3; }
+  .locked-tile::after { content: "🔒"; position: absolute; top: 4px; right: 6px; font-size: 10px; opacity: 0.7; }
+  .locked-hint { margin: 10px 2px 0; font-size: 11.5px; opacity: 0.65; text-align: center; line-height: 1.6; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .knowledge-item { animation: none; }
+    .progress span { transition: none; }
+  }
+
+  .knowledge-empty {
+    margin-top: 24px;
+    font-size: 12px;
+    opacity: 0.6;
+    text-align: center;
+    max-width: 280px;
+  }
+
+  .why-section { width: 100%; max-width: 360px; margin-top: 32px; }
+  .why-section h2 { font-size: 15px; margin: 0 2px 8px; letter-spacing: 0.08em; }
+  .why-item { background: rgba(255,255,255,0.06); border-radius: 12px; padding: 10px 14px; margin-bottom: 8px; font-size: 13px; }
+  .why-item summary { cursor: pointer; line-height: 1.5; }
+  .why-item .result { font-size: 11px; opacity: 0.7; margin-left: 6px; }
+  .why-reason { margin: 8px 0 6px; line-height: 1.6; opacity: 0.95; }
+  .why-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .why-chip { font-size: 11px; padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,0.1); }
+  .why-chip.chosen { background: #ffd166; color: #4a2200; font-weight: bold; }
+  .why-note { font-size: 11px; opacity: 0.6; margin-top: 6px; }
+
+  /* スマホ: 1カラムで中央揃え */
+  /* hidden 属性を display で打ち消さないよう :not([hidden]) にする */
+  #cardRoot:not([hidden]) { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .card-side { display: flex; flex-direction: column; align-items: center; }
+  .info-side { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+  /* PC: 左にカード（スクロールしても残す）、右に知識とクイズ */
+  @media (min-width: 900px) {
+    .app { padding-top: 48px; }
+    #cardRoot:not([hidden]) {
+      display: grid; grid-template-columns: 320px minmax(0, 520px); gap: 56px;
+      justify-content: center; align-items: start;
+    }
+    .card-side { position: sticky; top: 48px; }
+    .card { width: 300px; }
+    .name { font-size: 24px; }
+    .info-side .knowledge-list, .info-side .why-section { max-width: none; }
+    .info-side .knowledge-list { margin-top: 0; }
+    .knowledge-open { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .knowledge-locked { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  /* どの水槽にいるか。押すとその水槽で絞り込んだ図鑑へ */
+  .area-chip {
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 10px;
+    padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: bold; text-decoration: none;
+    color: #9fe6ff; background: rgba(92,200,255,0.12); border: 1px solid rgba(92,200,255,0.35);
+  }
+  .area-chip:hover, .area-chip:focus-visible { background: rgba(92,200,255,0.22); }
+
+  /* 図鑑（一覧）へ戻るボタン。右上のランクバッジと対になる位置 */
+  .back-link {
+    position: absolute; top: max(10px, env(safe-area-inset-top, 10px)); left: 10px; z-index: 10;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 12px 5px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.16);
+    color: var(--text); font-size: 12px; font-weight: bold; text-decoration: none;
+  }
+  .back-link:hover, .back-link:focus-visible { background: rgba(255,255,255,0.18); }
+
+  .error-screen { text-align: center; padding: 24px; }
+  .error-screen p { opacity: 0.8; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <a class="back-link" id="backLink" href="zukan.html">← 図鑑</a>
+  <div id="errorScreen" class="error-screen" hidden>
+    <p id="errorMessage">見つかりませんでした</p>
+  </div>
+
+  <div id="cardRoot" hidden>
+    <div class="card-side">
+      <div class="card" id="card">
+        <img id="cardImg" src="" alt="" />
+      </div>
+      <div class="name" id="cardName"></div>
+      <div class="sub-name" id="cardSubName"></div>
+      <a class="area-chip" id="areaChip" hidden></a>
+      <div id="completeBadge" class="complete-badge" hidden>コンプリート</div>
+    </div>
+
+    <div class="info-side">
+      <div class="knowledge-list" id="knowledgeList"></div>
+      <p class="knowledge-empty" id="knowledgeEmpty" hidden>
+        LINEでこの生きものについて話すと、ここに知識が追加されていくよ
+      </p>
+
+      <section class="why-section" id="whySection" hidden>
+        <h2>これまでのクイズ（なぜこの問題？）</h2>
+        <div id="whyList"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script type="module">
+  import { getCurrentUser, isDemo } from "./shared/liff-client.js";
+  import { getCollectionEntry, getQuizHistory } from "./shared/firestore-client.js";
+  import { lookupAnimal } from "./shared/animals-lookup.js";
+  import { findExhibition } from "./shared/exhibitions.js";
+  import "./shared/rank-badge.js";
+
+  // 既知のキーは日本語ラベルに変換する。未知のキーはそのままキー名を表示する
+  // (779requirements.md「食べ物・すみか・水温など」に対応。実際のキー名はバックエンド実装確定後に追記)
+  const KNOWLEDGE_LABELS = {
+    food: "食べ物",
+    habitat: "すみか",
+    waterTemp: "水温",
+  };
+  // 知識欄の並び順（バックエンドの QUIZ_CATEGORIES と同じ13カテゴリ）
+  const KNOWLEDGE_ORDER = ["生息地", "水域", "水温", "深度", "郷土料理", "類似した仲間", "同じ水槽にいる魚", "特徴", "豆知識", "進化の歴史", "食物連鎖", "ダジャレ", "海外の小ネタ"];
+  // カテゴリごとの絵文字と色の系統（place=場所 / mates=仲間 / body=からだ / fun=おもしろ）
+  const KNOWLEDGE_STYLE = {
+    生息地: ["🌏", "place"], 水域: ["💧", "place"], 水温: ["🌡️", "place"], 深度: ["🌊", "place"],
+    類似した仲間: ["🐟", "mates"], 同じ水槽にいる魚: ["🫧", "mates"], 食物連鎖: ["🍽️", "mates"],
+    特徴: ["🔍", "body"], 進化の歴史: ["🦴", "body"],
+    郷土料理: ["🍲", "fun"], 豆知識: ["💡", "fun"], ダジャレ: ["😆", "fun"], 海外の小ネタ: ["✈️", "fun"],
+  };
+
+  const appEl = document.getElementById("app");
+  const errorScreen = document.getElementById("errorScreen");
+  const errorMessage = document.getElementById("errorMessage");
+  const cardRoot = document.getElementById("cardRoot");
+  const cardEl = document.getElementById("card");
+  const cardImg = document.getElementById("cardImg");
+  const cardName = document.getElementById("cardName");
+  const cardSubName = document.getElementById("cardSubName");
+  const completeBadge = document.getElementById("completeBadge");
+  const knowledgeList = document.getElementById("knowledgeList");
+  const knowledgeEmpty = document.getElementById("knowledgeEmpty");
+
+  function showError(message) {
+    errorMessage.textContent = message;
+    errorScreen.hidden = false;
+    cardRoot.hidden = true;
+  }
+
+  function renderKnowledge(knowledgeUnlocked) {
+    // Firestore の map はキーの順番を保たないので、開いている知識を先に、その中はクイズのカテゴリ順に並べる
+    const order = (key) => {
+      const i = KNOWLEDGE_ORDER.indexOf(key);
+      return (knowledgeUnlocked[key] ? 0 : 100) + (i === -1 ? 99 : i);
+    };
+    const keys = Object.keys(knowledgeUnlocked || {}).sort((a, b) => order(a) - order(b));
+    if (keys.length === 0) {
+      knowledgeEmpty.hidden = false;
+      return;
+    }
+
+    const el = (tag, className, text) => {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    };
+    const opened = keys.filter((key) => knowledgeUnlocked[key]);
+    const locked = keys.filter((key) => !knowledgeUnlocked[key]);
+
+    // 見出しと進み具合
+    const head = el("div", "section-head");
+    head.appendChild(el("h2", "", "ちしき"));
+    const count = el("span", "count", `${opened.length} `);
+    count.appendChild(el("small", "", `/ ${keys.length}`));
+    head.appendChild(count);
+    knowledgeList.appendChild(head);
+    const progress = el("div", "progress");
+    const bar = el("span");
+    progress.appendChild(bar);
+    knowledgeList.appendChild(progress);
+    requestAnimationFrame(() => { bar.style.width = `${(opened.length / keys.length) * 100}%`; });
+
+    // 開いた知識はカード
+    const openBox = el("div", "knowledge-open");
+    opened.forEach((key, i) => {
+      const [emoji, group] = KNOWLEDGE_STYLE[key] || ["📘", ""];
+      const row = el("div", "knowledge-item");
+      if (group) row.dataset.group = group;
+      row.style.setProperty("--i", i);
+      row.appendChild(el("span", "icon", emoji));
+      row.appendChild(el("span", "label", KNOWLEDGE_LABELS[key] || key));
+      row.appendChild(el("span", "value", typeof knowledgeUnlocked[key] === "string" ? knowledgeUnlocked[key] : "解放ずみ"));
+      openBox.appendChild(row);
+    });
+    knowledgeList.appendChild(openBox);
+
+    // まだの知識はタイル
+    if (locked.length) {
+      const lockedHead = el("div", "locked-head");
+      lockedHead.appendChild(el("span", "", "まだ見つけていない知識"));
+      lockedHead.appendChild(el("span", "", `あと ${locked.length}`));
+      knowledgeList.appendChild(lockedHead);
+      const grid = el("div", "knowledge-locked");
+      locked.forEach((key) => {
+        const [emoji, group] = KNOWLEDGE_STYLE[key] || ["📘", ""];
+        const tile = el("div", "locked-tile");
+        if (group) tile.dataset.group = group;
+        tile.appendChild(el("span", "icon", emoji));
+        tile.appendChild(el("span", "label", KNOWLEDGE_LABELS[key] || key));
+        grid.appendChild(tile);
+      });
+      knowledgeList.appendChild(grid);
+      knowledgeList.appendChild(el("p", "locked-hint", "LINEでこの生きものについて話すと、ひらいていくよ"));
+    }
+  }
+
+  // #832 B4: 「なぜこの問題になったか」（エージェントの理由と、検討したカテゴリ）。textContentだけで組み立てる。
+  function renderWhy(history) {
+    const whySection = document.getElementById("whySection");
+    const whyList = document.getElementById("whyList");
+    if (!history.length) return;
+    history.forEach((h) => {
+      const item = document.createElement("details");
+      item.className = "why-item";
+      const summary = document.createElement("summary");
+      summary.textContent = h.question || "（問題の記録なし）";
+      const result = document.createElement("span");
+      result.className = "result";
+      result.textContent = h.isCorrect ? "○ 正解" : "× 不正解";
+      summary.appendChild(result);
+      item.appendChild(summary);
+
+      const considered = Array.isArray(h.consideredCategories) ? h.consideredCategories : [];
+      if (!h.selectionReason && considered.length === 0) {
+        const note = document.createElement("p");
+        note.className = "why-note";
+        note.textContent = "この問題の選び方の記録はありません";
+        item.appendChild(note);
+      } else {
+        if (h.selectionReason) {
+          const reason = document.createElement("p");
+          reason.className = "why-reason";
+          reason.textContent = `選んだ理由: ${h.selectionReason}`;
+          item.appendChild(reason);
+        }
+        if (considered.length > 0) {
+          const chips = document.createElement("ul");
+          chips.className = "why-chips";
+          considered.forEach((c) => {
+            const chip = document.createElement("li");
+            chip.className = `why-chip${c.category === h.category ? " chosen" : ""}`;
+            chip.textContent = `${c.category}${c.grounded ? " ✓" : ""}`;
+            chips.appendChild(chip);
+          });
+          item.appendChild(chips);
+          const legend = document.createElement("p");
+          legend.className = "why-note";
+          legend.textContent = "✓ は海遊館の公式データに基づく候補。黄色が選ばれたカテゴリ";
+          item.appendChild(legend);
+        }
+      }
+      whyList.appendChild(item);
+    });
+    whySection.hidden = false;
+  }
+
+  // 図鑑へのリンク。デモ表示・ローカル確認のパラメータは引き継ぐ。area を渡すとその水槽で絞り込んだ図鑑
+  function zukanUrl(area) {
+    const params = new URLSearchParams(location.search);
+    const next = new URLSearchParams();
+    if (params.get("debugUserId")) next.set("debugUserId", params.get("debugUserId"));
+    if (isDemo()) next.set("demo", "1");
+    if (area) next.set("area", area);
+    const query = next.toString();
+    return query ? `zukan.html?${query}` : "zukan.html";
+  }
+
+  function setupBackLink() {
+    document.getElementById("backLink").href = zukanUrl();
+  }
+
+  // どの水槽にいるか（マニフェストの mainExhibition）。分からなければ出さない
+  function renderArea(slug) {
+    const exhibition = findExhibition(slug);
+    if (!exhibition) return;
+    const chip = document.getElementById("areaChip");
+    chip.textContent = `🌊 ${exhibition.name}の水槽`;
+    chip.href = zukanUrl(exhibition.slug);
+    chip.setAttribute("aria-label", `${exhibition.name}の水槽の生きものを図鑑で見る`);
+    chip.hidden = false;
+  }
+
+  async function main() {
+    setupBackLink();
+    const params = new URLSearchParams(location.search);
+    const animalId = params.get("animalId");
+    if (!animalId) {
+      showError("生きものが指定されていません");
+      return;
+    }
+
+    const user = await getCurrentUser();
+    if (!user) return; // liff.login()でリダイレクト中
+
+    const entry = await getCollectionEntry(user.userId, animalId);
+    if (!entry) {
+      showError("見つかりませんでした");
+      return;
+    }
+
+    const rankBadge = document.createElement("rank-badge");
+    rankBadge.setAttribute("user-id", user.userId);
+    appEl.appendChild(rankBadge);
+
+    const animal = await lookupAnimal(animalId, entry.name);
+    cardImg.src = animal.file;
+    cardImg.alt = animal.name;
+    cardEl.dataset.rarity = entry.rarity || "normal";
+    cardName.textContent = animal.name;
+    cardSubName.textContent = `${animal.scientificName} / ${animal.family || ""}`;
+    completeBadge.hidden = !entry.completed;
+    renderArea(animal.mainExhibition);
+
+    renderKnowledge(entry.knowledgeUnlocked);
+
+    cardRoot.hidden = false;
+
+    // 履歴の取得に失敗してもカード本体の表示は止めない
+    getQuizHistory(user.userId, animalId).then(renderWhy).catch((error) => console.warn("クイズ履歴を読めませんでした", error));
+  }
+
+  main().catch((error) => {
+    console.error(error);
+    showError("読み込みに失敗しました");
+  });
+</script>
+</body>
+</html>

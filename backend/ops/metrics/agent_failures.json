@@ -1,0 +1,6 @@
+{
+  "name": "agent_failures",
+  "description": "ok 以外で終わったエージェントの件数（アラートの分子）",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"agent_run\" AND jsonPayload.outcome!=\"ok\"",
+  "metricDescriptor": {"metricKind": "DELTA", "valueType": "INT64", "unit": "1"}
+}

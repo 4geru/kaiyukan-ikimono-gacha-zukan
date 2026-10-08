@@ -1,0 +1,116 @@
+{
+  "displayName": "いきものガチャ図鑑: エージェントの運用",
+  "gridLayout": {
+    "columns": "12",
+    "widgets": [
+      {
+        "title": "エージェントの実行数（outcome 別）",
+        "xyChart": {
+          "dataSets": [
+            {
+              "plotType": "LINE",
+              "minAlignmentPeriod": "300s",
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"logging.googleapis.com/user/agent_runs\" resource.type=\"cloud_run_revision\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [
+                      "metric.label.outcome"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "yAxis": {
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "所要時間 p95（ミリ秒・agent 別）",
+        "xyChart": {
+          "dataSets": [
+            {
+              "plotType": "LINE",
+              "minAlignmentPeriod": "300s",
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"logging.googleapis.com/user/agent_latency\" resource.type=\"cloud_run_revision\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_95",
+                    "crossSeriesReducer": "REDUCE_MAX",
+                    "groupByFields": [
+                      "metric.label.agent"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "yAxis": {
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "ガードの介入件数（guard 別）",
+        "xyChart": {
+          "dataSets": [
+            {
+              "plotType": "LINE",
+              "minAlignmentPeriod": "300s",
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"logging.googleapis.com/user/guard_interventions\" resource.type=\"cloud_run_revision\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_SUM",
+                    "crossSeriesReducer": "REDUCE_SUM",
+                    "groupByFields": [
+                      "metric.label.guard"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "yAxis": {
+            "scale": "LINEAR"
+          }
+        }
+      },
+      {
+        "title": "入力トークン量の中央値（agent 別。費用は単価 x 量で読む）",
+        "xyChart": {
+          "dataSets": [
+            {
+              "plotType": "LINE",
+              "minAlignmentPeriod": "300s",
+              "timeSeriesQuery": {
+                "timeSeriesFilter": {
+                  "filter": "metric.type=\"logging.googleapis.com/user/agent_input_tokens\" resource.type=\"cloud_run_revision\"",
+                  "aggregation": {
+                    "alignmentPeriod": "300s",
+                    "perSeriesAligner": "ALIGN_PERCENTILE_50",
+                    "crossSeriesReducer": "REDUCE_MAX",
+                    "groupByFields": [
+                      "metric.label.agent"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "yAxis": {
+            "scale": "LINEAR"
+          }
+        }
+      }
+    ]
+  }
+}

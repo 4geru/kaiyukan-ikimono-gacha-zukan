@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>いきもの図鑑</title>
+<!-- 初期表示の高速化: 接続とダウンロードを早めに始める（バージョンは shared/config.js の CDN_VERSIONS.firebase と揃える） -->
+<link rel="preconnect" href="https://static.line-scdn.net" crossorigin />
+<link rel="preconnect" href="https://storage.googleapis.com" />
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://kaiyukan-gacha-bot-v7dfmi7bla-an.a.run.app" crossorigin />
+<link rel="preload" as="script" href="https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/gacha-demo/animals-manifest.js" />
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js" />
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js" />
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js" />
+<script defer src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+  :root {
+    --bg-top: #062038;
+    --bg-bottom: #01060f;
+    --text: #f3f6ff;
+    --panel: rgba(6, 32, 56, 0.94);
+    --accent: #6fc7ff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(ellipse at 50% 15%, var(--bg-top), var(--bg-bottom) 70%) fixed;
+    color: var(--text);
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    /* hiddenだとbodyがスクロールコンテナ化して、下の .top の position: sticky が効かなくなる */
+    overflow-x: clip;
+  }
+  .app {
+    min-height: 100dvh;
+    padding: 0 12px calc(24px + env(safe-area-inset-bottom, 0px));
+    position: relative;
+  }
+
+  /* ヘッダー＋絞り込みは上に固定して、スクロール中も進捗と絞り込みが見えるようにする */
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    margin: 0 -12px;
+    padding: max(14px, env(safe-area-inset-top, 14px)) 12px 8px;
+    background: var(--panel);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  h1 { font-size: 18px; margin: 0; text-align: center; }
+  .progress-text { font-size: 12px; text-align: center; margin: 4px 0 6px; opacity: 0.85; }
+  .progress-text b { font-size: 15px; color: #ffd166; }
+  .progress-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    overflow: hidden;
+    margin: 0 8px 10px;
+  }
+  .progress-bar > div {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #6fc7ff, #ffd166);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .segment {
+    display: flex;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 2px;
+    margin-bottom: 8px;
+  }
+  .segment button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 12px;
+    padding: 7px 0;
+    border-radius: 8px;
+    opacity: 0.7;
+  }
+  .segment button[aria-pressed="true"] {
+    background: rgba(111,199,255,0.25);
+    opacity: 1;
+    font-weight: bold;
+  }
+
+  .chips {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chips button {
+    flex: 0 0 auto;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 11px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+    opacity: 0.75;
+  }
+  .chips button[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #04223a;
+    font-weight: bold;
+    opacity: 1;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .tile {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0e1830;
+    border: 2px solid #445;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tile[data-rarity="normal"] { border-color: #b9c6dd; }
+  .tile[data-rarity="rare"] { border-color: #6fc7ff; box-shadow: 0 0 8px 1px rgba(111,199,255,0.5); }
+  .tile[data-rarity="super"] { border-color: #ffd166; box-shadow: 0 0 10px 2px rgba(255,209,102,0.6); }
+  .tile:active[href] { transform: scale(0.97); }
+
+  /* イラストの下端には名前（学名つき）が描き込まれているので、上寄せで切って名前帯を別に出す */
+  .thumb {
+    position: relative;
+    aspect-ratio: 1 / 0.8;
+    background: #fff;
+  }
+  .thumb { overflow: hidden; }
+  /* absoluteにして、画像の固有サイズ（正方形）が aspect-ratio の高さを押し広げないようにする */
+  .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .name {
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* 名前の下に小さく水槽の名前 */
+  .name .area {
+    display: block; margin-top: 1px;
+    font-size: 0.8em; font-weight: normal; opacity: 0.6;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* 未発見: 画像を出さない（ネタバレ防止＋読み込み量削減） */
+  .tile[data-state="locked"] { border: 2px dashed rgba(255,255,255,0.16); background: rgba(255,255,255,0.04); }
+  .tile[data-state="locked"] .thumb {
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: rgba(255,255,255,0.22);
+  }
+  .tile[data-state="locked"] .name { color: rgba(255,255,255,0.3); }
+
+  .no {
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    font-size: 9px;
+    font-weight: bold;
+    color: #062038;
+    background: rgba(255,255,255,0.75);
+    padding: 0 4px;
+    border-radius: 4px;
+  }
+  .tile[data-state="locked"] .no { color: rgba(255,255,255,0.4); background: none; padding: 0; }
+  .complete-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background: #ffd166;
+    color: #4a2200;
+    font-size: 8px;
+    font-weight: bold;
+    padding: 1px 5px;
+    border-radius: 999px;
+  }
+
+  .empty-state {
+    text-align: center;
+    opacity: 0.6;
+    font-size: 13px;
+    margin-top: 48px;
+    line-height: 1.7;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    transform: translate(-50%, 20px);
+    background: rgba(255,255,255,0.95);
+    color: #062038;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 9px 16px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 20;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .error-screen { text-align: center; padding: 24px; }
+  .error-screen p { opacity: 0.8; font-size: 14px; }
+
+  button { cursor: pointer; }
+  @media (hover: hover) {
+    .tile[href] { transition: transform 0.15s, box-shadow 0.15s; }
+    .tile[href]:hover { transform: translateY(-3px); }
+    .chips button:hover, .segment button:hover { opacity: 1; }
+  }
+
+  /* タブレット幅: 列数をカード幅ベースで増やす（ヘッダーは上固定のまま） */
+  @media (min-width: 600px) {
+    .app { padding-left: 24px; padding-right: 24px; }
+    .top { margin: 0 -24px; padding-left: 24px; padding-right: 24px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .name { font-size: 12px; padding: 5px 8px; }
+    .no { font-size: 10px; }
+  }
+
+  /* PC幅: 左に進捗・絞り込みのサイドバー、右にグリッドの2カラム */
+  @media (min-width: 900px) {
+    .app { padding: 32px 32px calc(40px + env(safe-area-inset-bottom, 0px)); }
+    #zukanRoot:not([hidden]) {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 0 32px;
+      align-items: start;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .top {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      top: 32px;
+      margin: 0;
+      padding: 24px 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      max-height: calc(100dvh - 64px);
+      overflow-y: auto;
+    }
+    h1 { font-size: 22px; }
+    .progress-text { font-size: 14px; margin: 8px 0; }
+    .progress-text b { font-size: 24px; }
+    .progress-bar { margin: 0 0 18px; height: 8px; }
+    .segment button { font-size: 13px; padding: 8px 0; }
+    /* エリアは縦に折り返して全部見えるようにする（横スクロールなし） */
+    .chips { flex-wrap: wrap; overflow: visible; gap: 8px; }
+    .chips button { font-size: 12px; padding: 6px 12px; }
+    .grid {
+      grid-column: 2;
+      grid-row: 1;
+      margin-top: 0;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .empty-state { grid-column: 2; grid-row: 2; }
+    .name { font-size: 13px; padding: 6px 10px; }
+    .no { font-size: 11px; top: 5px; left: 7px; }
+    .complete-badge { font-size: 10px; top: 5px; right: 5px; }
+    .tile[data-state="locked"] .thumb { font-size: 36px; }
+    .toast { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div id="errorScreen" class="error-screen" hidden>
+    <p id="errorMessage">読み込みに失敗しました</p>
+  </div>
+
+  <p id="bootLoading" class="empty-state" style="display:block;margin-top:40vh">読み込み中…</p>
+
+  <div id="zukanRoot" hidden>
+    <header class="top">
+      <h1>いきもの図鑑</h1>
+      <p class="progress-text"><b id="foundCount">–</b> / <span id="totalCount">–</span> 種 発見</p>
+      <div class="progress-bar"><div id="progressFill"></div></div>
+      <div class="segment" id="segment" role="group" aria-label="表示の絞り込み">
+        <button type="button" data-status="all" aria-pressed="true">すべて</button>
+        <button type="button" data-status="found" aria-pressed="false">発見ずみ</button>
+        <button type="button" data-status="locked" aria-pressed="false">まだ</button>
+      </div>
+      <div class="chips" id="areaChips" role="group" aria-label="エリアの絞り込み" hidden></div>
+    </header>
+
+    <div class="grid" id="grid"></div>
+    <p class="empty-state" id="emptyState" hidden></p>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+
+<script type="module">
+  import { getCurrentUser } from "./shared/liff-client.js";
+  import { watchCollection, prewarmFirebase } from "./shared/firestore-client.js";
+  import { loadAllAnimals } from "./shared/animals-lookup.js";
+  import { findExhibition, exhibitionLabel } from "./shared/exhibitions.js";
+  import "./shared/rank-badge.js";
+
+  // 展示エリア（水槽）の名前は shared/exhibitions.js（19件）。未知のキーは「その他」にまとめる
+  const OTHER_AREA = "other";
+
+  const appEl = document.getElementById("app");
+  const errorScreen = document.getElementById("errorScreen");
+  const errorMessage = document.getElementById("errorMessage");
+  const zukanRoot = document.getElementById("zukanRoot");
+  const grid = document.getElementById("grid");
+  const emptyState = document.getElementById("emptyState");
+  const foundCountEl = document.getElementById("foundCount");
+  const totalCountEl = document.getElementById("totalCount");
+  const progressFill = document.getElementById("progressFill");
+  const segment = document.getElementById("segment");
+  const areaChips = document.getElementById("areaChips");
+  const toastEl = document.getElementById("toast");
+
+  const debugUserId = new URLSearchParams(location.search).get("debugUserId");
+  // loaded: 発見状況（collection）を最初に受け取るまで false。それまでは進捗を「–」にして0件と誤解させない
+  const initialArea = new URLSearchParams(location.search).get("area");
+  // ?area=pacific で開いたら最初からその水槽で絞り込む（カード詳細の「🌊 ○○の水槽」から来たとき）
+  const state = { animals: [], entries: new Map(), loaded: false, status: "all", area: findExhibition(initialArea) ? initialArea : "all" };
+
+  function showError(message) {
+    document.getElementById("bootLoading")?.remove();
+    errorMessage.textContent = message;
+    errorScreen.hidden = false;
+    zukanRoot.hidden = true;
+  }
+
+  const areaOf = (animal) => (findExhibition(animal.mainExhibition) ? animal.mainExhibition : OTHER_AREA);
+
+  let toastTimer;
+  function toast(message) {
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1800);
+  }
+
+  function pressedGroup(container, value, attr) {
+    container.querySelectorAll("button").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset[attr] === value));
+    });
+  }
+
+  // マニフェストにエリア情報が無い（古い公開マニフェスト）場合はチップを出さない
+  function buildAreaChips() {
+    const counts = new Map();
+    state.animals.forEach((animal) => {
+      if (!animal.mainExhibition) return;
+      const key = areaOf(animal);
+      counts.set(key, (counts.get(key) || 0) + 1);
+    });
+    if (counts.size === 0) return;
+
+    const keys = [...counts.keys()].filter((key) => key !== OTHER_AREA).sort((a, b) => counts.get(b) - counts.get(a));
+    if (counts.has(OTHER_AREA)) keys.push(OTHER_AREA);
+
+    const make = (key, label) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.area = key;
+      button.textContent = label;
+      button.setAttribute("aria-pressed", String(key === state.area));
+      return button;
+    };
+    areaChips.appendChild(make("all", "ぜんぶ"));
+    keys.forEach((key) => areaChips.appendChild(make(key, exhibitionLabel(key) || "その他")));
+    areaChips.hidden = false;
+    // ?area= で開いたとき、選ばれたチップが横スクロールの外に隠れないようにする
+    const pressed = state.area !== "all" && areaChips.querySelector(`[data-area="${state.area}"]`);
+    if (pressed) {
+      requestAnimationFrame(() => {
+        areaChips.scrollLeft = pressed.offsetLeft - areaChips.offsetLeft - (areaChips.clientWidth - pressed.offsetWidth) / 2;
+      });
+    }
+  }
+
+  function createTile(animal, entry) {
+    const found = Boolean(entry);
+    const tile = document.createElement(found ? "a" : "div");
+    tile.className = "tile";
+    tile.dataset.state = found ? "found" : "locked";
+
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+    const no = document.createElement("span");
+    no.className = "no";
+    no.textContent = `No.${animal.id.padStart(3, "0")}`;
+    thumb.appendChild(no);
+
+    const name = document.createElement("div");
+    name.className = "name";
+    tile.append(thumb, name);
+
+    if (!found) {
+      thumb.appendChild(document.createTextNode("？"));
+      name.textContent = "？？？";
+      return tile;
+    }
+
+    const cardParams = new URLSearchParams({ animalId: animal.id });
+    if (debugUserId) cardParams.set("debugUserId", debugUserId); // ローカル確認用。LIFF本番では付かない
+    tile.href = `card.html?${cardParams}`;
+    tile.dataset.rarity = entry.rarity || "normal";
+
+    const img = document.createElement("img");
+    // 一覧には軽いサムネイル（thumbs/{id}.webp）を使い、無ければ元画像にフォールバック（元画像は1枚約1.8MB）
+    img.onerror = () => {
+      img.onerror = null;
+      img.src = animal.file;
+    };
+    img.src = `thumbs/${animal.id}.webp`;
+    img.alt = animal.name;
+    img.loading = "lazy";
+    img.decoding = "async";
+    thumb.prepend(img);
+    name.textContent = animal.name;
+    // どの水槽にいるか（小さく1行）
+    const area = exhibitionLabel(animal.mainExhibition);
+    if (area) {
+      const areaEl = document.createElement("span");
+      areaEl.className = "area";
+      areaEl.textContent = `🌊 ${area}`;
+      name.appendChild(areaEl);
+    }
+
+    if (entry.completed) {
+      const badge = document.createElement("div");
+      badge.className = "complete-badge";
+      badge.textContent = "コンプリート";
+      thumb.appendChild(badge);
+    }
+    return tile;
+  }
+
+  function render() {
+    const total = state.animals.length;
+    const found = state.animals.filter((animal) => state.entries.has(animal.id)).length;
+    foundCountEl.textContent = state.loaded ? found : "–";
+    totalCountEl.textContent = total;
+    progressFill.style.width = state.loaded && total ? `${(found / total) * 100}%` : "0";
+
+    if (!state.loaded) {
+      grid.replaceChildren();
+      emptyState.hidden = false;
+      emptyState.textContent = "読み込み中…";
+      return;
+    }
+
+    const visible = state.animals.filter((animal) => {
+      const isFound = state.entries.has(animal.id);
+      if (state.status === "found" && !isFound) return false;
+      if (state.status === "locked" && isFound) return false;
+      if (state.area !== "all" && areaOf(animal) !== state.area) return false;
+      return true;
+    });
+
+    const fragment = document.createDocumentFragment();
+    visible.forEach((animal) => fragment.appendChild(createTile(animal, state.entries.get(animal.id))));
+    grid.replaceChildren(fragment);
+
+    if (visible.length > 0) {
+      emptyState.hidden = true;
+    } else {
+      emptyState.hidden = false;
+      emptyState.textContent =
+        state.status === "found"
+          ? "まだ見つけた生きものがいないよ。LINEで案内板の写真を送ってみよう！"
+          : "この条件の生きものはいないよ";
+    }
+  }
+
+  segment.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    state.status = button.dataset.status;
+    pressedGroup(segment, state.status, "status");
+    render();
+  });
+
+  areaChips.addEventListener("click", (event) => {
+    const button = event.target.closest("button");
+    if (!button) return;
+    state.area = button.dataset.area;
+    pressedGroup(areaChips, state.area, "area");
+    render();
+  });
+
+  // 未発見タイルはリンクではないので、タップしたらヒントを出す
+  grid.addEventListener("click", (event) => {
+    if (event.target.closest('.tile[data-state="locked"]')) {
+      toast("LINEで案内板の写真を送って見つけよう！");
+    }
+  });
+
+  async function main() {
+    // ログイン(LIFF)に依存しないものを先に並列で始める: 図鑑マニフェストとFirebase SDK
+    const animalsPromise = loadAllAnimals();
+    prewarmFirebase();
+    const userPromise = getCurrentUser();
+    userPromise.catch(() => {}); // 失敗は下の await で拾う（未処理警告を避ける）
+
+    // マニフェストが届いたら、LIFFの完了を待たずに骨組み（総数つき・読み込み中）を出す
+    const animals = await animalsPromise;
+    if (animals.length === 0) {
+      showError("図鑑データを読み込めませんでした");
+      return;
+    }
+    state.animals = [...animals].sort((a, b) => Number(a.id) - Number(b.id));
+    buildAreaChips();
+    document.getElementById("bootLoading").remove();
+    zukanRoot.hidden = false;
+    render(); // 総数だけ先に出す（発見数は購読の初回結果まで「–」）
+
+    const user = await userPromise;
+    if (!user) return; // liff.login()でリダイレクト中
+
+    const rankBadge = document.createElement("rank-badge");
+    rankBadge.setAttribute("user-id", user.userId);
+    appEl.appendChild(rankBadge);
+
+    // 発見状況は collection のリアルタイム購読で反映（LINE側で新規発見したら自動で更新される）
+    await watchCollection(
+      user.userId,
+      (entries) => {
+        state.entries = new Map(entries.map((entry) => [entry.id, entry]));
+        state.loaded = true;
+        render();
+      },
+      (error) => {
+        // 権限エラー等で購読できない場合も、総数つきの図鑑（すべて未発見）を出して止まらないようにする
+        console.error(error);
+        state.loaded = true;
+        render();
+        toast("発見状況を読み込めなかったよ");
+      }
+    );
+  }
+
+  main().catch((error) => {
+    console.error(error);
+    showError("読み込みに失敗しました");
+  });
+</script>
+</body>
+</html>

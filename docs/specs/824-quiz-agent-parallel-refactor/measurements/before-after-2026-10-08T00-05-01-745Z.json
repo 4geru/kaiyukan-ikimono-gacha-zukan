@@ -1,0 +1,155 @@
+{
+  "startedAt": "2026-10-08T00:05:01.745Z",
+  "node": "v26.3.0",
+  "runs": 3,
+  "animals": [
+    "ジンベエザメ",
+    "ナンヨウマンタ"
+  ],
+  "samples": [
+    {
+      "animal": "ジンベエザメ",
+      "method": "before",
+      "run": 1,
+      "ok": true,
+      "totalMs": 38450,
+      "category": "類似した仲間"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "after-25flash",
+      "run": 1,
+      "ok": true,
+      "totalMs": 6733,
+      "category": "海外の小ネタ"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "after-prod",
+      "run": 1,
+      "ok": true,
+      "totalMs": 6453,
+      "category": "深度"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "before",
+      "run": 1,
+      "ok": true,
+      "totalMs": 41638,
+      "category": "ダジャレ"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "after-25flash",
+      "run": 1,
+      "ok": true,
+      "totalMs": 21617,
+      "category": "類似した仲間"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "after-prod",
+      "run": 1,
+      "ok": true,
+      "totalMs": 6280,
+      "category": "ダジャレ"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "before",
+      "run": 2,
+      "ok": true,
+      "totalMs": 32502,
+      "category": "豆知識"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "after-25flash",
+      "run": 2,
+      "ok": true,
+      "totalMs": 11472,
+      "category": "水温"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "after-prod",
+      "run": 2,
+      "ok": true,
+      "totalMs": 7201,
+      "category": "豆知識"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "before",
+      "run": 2,
+      "ok": true,
+      "totalMs": 32371,
+      "category": "豆知識"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "after-25flash",
+      "run": 2,
+      "ok": true,
+      "totalMs": 11284,
+      "category": "水域"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "after-prod",
+      "run": 2,
+      "ok": true,
+      "totalMs": 5882,
+      "category": "海外の小ネタ"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "before",
+      "run": 3,
+      "ok": true,
+      "totalMs": 47958,
+      "category": "豆知識"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "after-25flash",
+      "run": 3,
+      "ok": true,
+      "totalMs": 11283,
+      "category": "海外の小ネタ"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "after-prod",
+      "run": 3,
+      "ok": true,
+      "totalMs": 18971,
+      "category": "郷土料理"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "before",
+      "run": 3,
+      "ok": true,
+      "totalMs": 41910,
+      "category": "豆知識"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "after-25flash",
+      "run": 3,
+      "ok": true,
+      "totalMs": 23629,
+      "category": "類似した仲間"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "after-prod",
+      "run": 3,
+      "ok": true,
+      "totalMs": 19664,
+      "category": "水域"
+    }
+  ]
+}

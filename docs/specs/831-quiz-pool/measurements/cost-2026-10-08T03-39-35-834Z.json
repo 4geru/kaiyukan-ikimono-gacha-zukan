@@ -1,0 +1,431 @@
+{
+  "startedAt": "2026-10-08T03:39:35.834Z",
+  "node": "v26.3.0",
+  "runs": 3,
+  "animals": [
+    "ジンベエザメ",
+    "ナンヨウマンタ"
+  ],
+  "samples": [
+    {
+      "animal": "ジンベエザメ",
+      "method": "A",
+      "run": 1,
+      "ok": true,
+      "ms": 38585,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "選択=郷土料理 候補=13"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-prod",
+      "run": 1,
+      "ok": true,
+      "ms": 9486,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "豆知識"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-t0",
+      "run": 1,
+      "ok": true,
+      "ms": 2356,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "ダジャレ"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "C",
+      "run": 1,
+      "ok": true,
+      "ms": 14115,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "fail:{\n  \"factOk\": true,\n  \"uniqueAnswer\": false,\n  \"levelOk\": false,\n  \"pass\": false"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "D",
+      "run": 1,
+      "ok": true,
+      "ms": 2075,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "idx=3"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "A",
+      "run": 1,
+      "ok": false,
+      "ms": 28854,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "error": "ADKエージェントからの最終レスポンスが取得できませんでした (animalId: 206)"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "B-prod",
+      "run": 1,
+      "ok": true,
+      "ms": 10245,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "類似した仲間"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "B-t0",
+      "run": 1,
+      "ok": true,
+      "ms": 1621,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "生息地"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "C",
+      "run": 1,
+      "ok": true,
+      "ms": 10081,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "pass"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "A",
+      "run": 2,
+      "ok": true,
+      "ms": 36611,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "選択=豆知識 候補=13"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-prod",
+      "run": 2,
+      "ok": true,
+      "ms": 9843,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "豆知識"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-t0",
+      "run": 2,
+      "ok": true,
+      "ms": 1547,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "水域"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "C",
+      "run": 2,
+      "ok": true,
+      "ms": 12792,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "pass"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "D",
+      "run": 2,
+      "ok": true,
+      "ms": 1502,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "idx=0"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "A",
+      "run": 2,
+      "ok": false,
+      "ms": 14795,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "error": "ADKエージェントからの最終レスポンスが取得できませんでした (animalId: 206)"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "B-prod",
+      "run": 2,
+      "ok": true,
+      "ms": 10360,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "ダジャレ"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "B-t0",
+      "run": 2,
+      "ok": true,
+      "ms": 1730,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "水域"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "C",
+      "run": 2,
+      "ok": true,
+      "ms": 6323,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "pass"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "A",
+      "run": 3,
+      "ok": true,
+      "ms": 48237,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "選択=類似した仲間 候補=13"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-prod",
+      "run": 3,
+      "ok": true,
+      "ms": 16895,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "同じ水槽にいる魚"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-t0",
+      "run": 3,
+      "ok": true,
+      "ms": 1818,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "水温"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "C",
+      "run": 3,
+      "ok": true,
+      "ms": 9005,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "pass"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "D",
+      "run": 3,
+      "ok": true,
+      "ms": 1534,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "idx=2"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "A",
+      "run": 3,
+      "ok": true,
+      "ms": 25017,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "選択=豆知識 候補=13"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "B-prod",
+      "run": 3,
+      "ok": true,
+      "ms": 20115,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "豆知識"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "B-t0",
+      "run": 3,
+      "ok": true,
+      "ms": 1895,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "生息地"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "C",
+      "run": 3,
+      "ok": true,
+      "ms": 10620,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "pass"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "D",
+      "run": 3,
+      "ok": true,
+      "ms": 1599,
+      "usage": {
+        "calls": 0,
+        "input": 0,
+        "output": 0,
+        "thinking": 0,
+        "total": 0
+      },
+      "note": "idx=1"
+    }
+  ]
+}

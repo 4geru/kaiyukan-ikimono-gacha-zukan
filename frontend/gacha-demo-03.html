@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>いきものガチャ 演出03: 水面ジャンプ</title>
+<style>
+  :root {
+    --bg-top: #062038;
+    --bg-bottom: #01060f;
+    --text: #f3f6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(ellipse at 50% 15%, var(--bg-top), var(--bg-bottom) 70%);
+    color: var(--text);
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .app {
+    min-height: 100%;
+    min-height: 100dvh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+  }
+  .app.shake { animation: screen-shake 0.45s ease-in-out; }
+  .app.shake-big { animation: screen-shake-big 0.65s ease-in-out; }
+  @keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    15% { transform: translate(-10px, 6px); }
+    30% { transform: translate(9px, -7px); }
+    45% { transform: translate(-8px, 5px); }
+    60% { transform: translate(7px, -4px); }
+    75% { transform: translate(-5px, 3px); }
+    90% { transform: translate(3px, -2px); }
+  }
+  @keyframes screen-shake-big {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    10% { transform: translate(-16px, 10px) rotate(-1deg); }
+    25% { transform: translate(14px, -12px) rotate(1deg); }
+    40% { transform: translate(-13px, 9px) rotate(-1deg); }
+    55% { transform: translate(12px, -8px) rotate(1deg); }
+    70% { transform: translate(-9px, 6px); }
+    85% { transform: translate(6px, -4px); }
+  }
+
+  .flash-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 70%, #ffffff, #cdeeff 40%, rgba(120,200,255,0) 75%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+  .flash-overlay.play { animation: flash-pop 0.5s ease-out forwards; }
+  .flash-overlay.super { animation: flash-pop-super 0.7s ease-out forwards; }
+  @keyframes flash-pop { 0% { opacity: 0; } 12% { opacity: 0.95; } 100% { opacity: 0; } }
+  @keyframes flash-pop-super {
+    0% { opacity: 0; filter: hue-rotate(0deg); }
+    10% { opacity: 1; }
+    55% { opacity: 0.5; filter: hue-rotate(50deg); }
+    100% { opacity: 0; filter: hue-rotate(100deg); }
+  }
+
+  /* --- ステージ: 画面全体を演出領域にする --- */
+  .stage {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* --- 波紋（溜め演出） --- */
+  .rings {
+    position: absolute;
+    bottom: 130px;
+    left: 50%;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .charge-ring {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 220px;
+    height: 64px;
+    margin: 0 0 0 -110px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 214, 102, 0.9);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .charge-ring.on { animation: ring-expand 0.8s ease-out forwards; }
+  @keyframes ring-expand { 0% { opacity: 0.85; transform: scale(0.6); } 100% { opacity: 0; transform: scale(4.5); } }
+
+  /* --- スプラッシュ光（画面全体に広がる） --- */
+  .burst {
+    position: absolute;
+    bottom: 130px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff, #d7f3ff 35%, rgba(120,200,255,0) 70%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .burst.play { animation: burst-pop 0.6s cubic-bezier(.15,.8,.3,1) forwards; }
+  @keyframes burst-pop {
+    0% { opacity: 1; width: 10px; height: 10px; }
+    55% { opacity: 0.7; }
+    100% { opacity: 0; width: 160vmax; height: 160vmax; }
+  }
+
+  /* --- 水しぶき光線（画面上端近くまで届く） --- */
+  .rays {
+    position: absolute;
+    bottom: 130px;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .ray {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 75vh;
+    margin-left: -3px;
+    background: linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0));
+    transform-origin: 50% 0%;
+    opacity: 0;
+  }
+  .ray.on { animation: ray-shoot 0.55s ease-out forwards; }
+  @keyframes ray-shoot {
+    0% { opacity: 0.95; transform: scaleY(0.2) rotate(var(--rot)); }
+    100% { opacity: 0; transform: scaleY(1.5) rotate(var(--rot)); }
+  }
+
+  /* --- カード（水面から飛び出す） --- */
+  .card-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 230px;
+    height: 230px;
+    margin: -115px 0 0 -115px;
+    opacity: 0;
+    transform: translateY(140px) scale(0.5) rotate(-8deg);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .card-wrap.reveal { animation: leap-out 0.9s cubic-bezier(.22,1.2,.3,1) forwards; }
+  @keyframes leap-out {
+    0% { opacity: 0; transform: translateY(140px) scale(0.5) rotate(-8deg); }
+    30% { opacity: 1; }
+    62% { transform: translateY(-32px) scale(1.14) rotate(4deg); }
+    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+  }
+  .card {
+    width: 100%; height: 100%; border-radius: 18px; overflow: hidden; position: relative;
+    background: #0e1830; border: 3px solid #8fa5c9; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+  }
+  .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card::after { content: ""; position: absolute; inset: -3px; border-radius: 18px; pointer-events: none; }
+
+  .card-wrap[data-rarity="normal"] .card { border-color: #b9c6dd; }
+  .card-wrap[data-rarity="normal"] .card::after { box-shadow: 0 0 18px 2px rgba(185,198,221,0.5) inset; }
+  .card-wrap[data-rarity="rare"] .card { border-color: #6fc7ff; }
+  .card-wrap[data-rarity="rare"] .card::after {
+    box-shadow: 0 0 26px 4px rgba(111,199,255,0.75) inset, 0 0 24px 6px rgba(111,199,255,0.6);
+    animation: pulse-glow 1.6s ease-in-out infinite;
+  }
+  .card-wrap[data-rarity="super"] .card { border-color: #ffd166; border-width: 4px; }
+  .card-wrap[data-rarity="super"] .card::after {
+    box-shadow: 0 0 34px 6px rgba(255,209,102,0.85) inset, 0 0 34px 10px rgba(255,167,84,0.7);
+    animation: pulse-glow 1.1s ease-in-out infinite, hue-shift 3s linear infinite;
+  }
+  @keyframes pulse-glow { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
+  @keyframes hue-shift { 0% { filter: hue-rotate(0deg) brightness(1.15); } 100% { filter: hue-rotate(360deg) brightness(1.15); } }
+
+  .particles { position: absolute; inset: -60px; pointer-events: none; z-index: 5; }
+  .sparkle {
+    position: absolute; opacity: 0; font-size: 18px; line-height: 1;
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.8)); will-change: transform, opacity;
+  }
+  .sparkle.on { animation: sparkle-pop 1.3s ease-out forwards; }
+  @keyframes sparkle-pop {
+    0% { opacity: 0; transform: translate(0,0) scale(0.2) rotate(0deg); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: var(--end) scale(1) rotate(var(--spin, 0deg)); }
+  }
+
+  /* --- 水面（画面幅いっぱい） --- */
+  .water {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 130px;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(80,190,255,0.55), rgba(15,90,180,0.92) 60%, rgba(6,50,110,0.98));
+    border-radius: 50% 50% 0 0 / 26px 26px 0 0;
+    animation: bob 3.2s ease-in-out infinite;
+  }
+  .water::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 16px;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.5) 0 18px, rgba(255,255,255,0) 18px 40px);
+    opacity: 0.6;
+    animation: wave-scroll 2.4s linear infinite;
+  }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+  @keyframes wave-scroll { from { background-position-x: 0; } to { background-position-x: 40px; } }
+  .water.surge { animation: surge 0.5s ease-out; }
+  @keyframes surge {
+    0% { transform: scaleY(1); }
+    30% { transform: scaleY(1.4) translateY(-10px); }
+    100% { transform: scaleY(1); }
+  }
+
+  /* --- 前景UI: 画面下部に固定し、演出の邪魔をしない --- */
+  .foreground {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(0deg, rgba(1,6,15,0.85) 30%, rgba(1,6,15,0));
+  }
+
+  .result { text-align: center; min-height: 64px; opacity: 0; transition: opacity 0.4s ease; }
+  .result.show { opacity: 1; }
+  .rarity-badge { display: inline-block; padding: 3px 14px; border-radius: 999px; font-size: 12px; font-weight: bold; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .rarity-badge.normal { background: #b9c6dd; color: #14213d; }
+  .rarity-badge.rare { background: linear-gradient(90deg,#6fc7ff,#a0e4ff); color: #06284a; }
+  .rarity-badge.super { background: linear-gradient(90deg,#ffd166,#ff9a5c); color: #4a2200; }
+  .result-name { font-size: 20px; font-weight: bold; }
+  .result-sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+  .result.show .rarity-badge, .result.show .result-name { animation: text-pop 0.55s cubic-bezier(.2,1.6,.4,1) both; }
+  .result.show .result-name { animation-delay: 0.08s; }
+  @keyframes text-pop {
+    0% { opacity: 0; transform: scale(2.4) rotate(-6deg); }
+    60% { opacity: 1; }
+    100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  }
+
+  .actions { margin-top: 18px; display: flex; gap: 12px; }
+  button.gacha-btn {
+    appearance: none; border: none; border-radius: 999px; padding: 14px 30px; font-size: 16px; font-weight: bold;
+    background: linear-gradient(90deg, #4fd3ff, #2f8fe0); color: #04223f;
+    box-shadow: 0 6px 18px rgba(79, 211, 255, 0.4); cursor: pointer; transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  button.gacha-btn:active { transform: scale(0.96); }
+  button.gacha-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* --- レア度選択（デモ用） --- */
+  .rarity-picker {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .rarity-picker .picker-label {
+    font-size: 11px;
+    opacity: 0.55;
+    letter-spacing: 0.08em;
+  }
+  .picker-options {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .picker-btn {
+    appearance: none;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .picker-btn:active { transform: scale(0.95); }
+  .picker-btn.active {
+    background: linear-gradient(90deg, #4fd3ff, #2f8fe0);
+    border-color: transparent;
+    color: #04223f;
+  }
+  .picker-btn[data-key="normal"].active { background: linear-gradient(90deg,#b9c6dd,#dfe6f2); }
+  .picker-btn[data-key="rare"].active { background: linear-gradient(90deg,#6fc7ff,#a0e4ff); }
+  .picker-btn[data-key="super"].active { background: linear-gradient(90deg,#ffd166,#ff9a5c); }
+
+  /* --- ミュートボタン --- */
+  .mute-btn {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top, 12px));
+    left: 12px;
+    z-index: 20;
+    appearance: none;
+    border: none;
+    border-radius: 999px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    background: rgba(255,255,255,0.12);
+    color: var(--text);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="flash-overlay" id="flashOverlay"></div>
+<button class="mute-btn" id="muteBtn" type="button" aria-label="音を切り替え">🔊</button>
+<div class="app" id="app">
+  <div class="stage" id="stage">
+    <div class="rings" id="rings"></div>
+    <div class="rays" id="rays"></div>
+    <div class="burst" id="burst"></div>
+    <div class="card-wrap" id="cardWrap">
+      <div class="card"><img id="cardImg" src="" alt="" /></div>
+      <div class="particles" id="particles"></div>
+    </div>
+    <div class="water" id="water"></div>
+  </div>
+
+  <div class="foreground">
+    <div class="result" id="result">
+      <div class="rarity-badge" id="rarityBadge"></div>
+      <div class="result-name" id="resultName"></div>
+      <div class="result-sub" id="resultSub"></div>
+    </div>
+
+    <div class="actions">
+      <button class="gacha-btn" id="pullBtn">水面をたたく</button>
+    </div>
+
+    <div class="rarity-picker">
+      <div class="picker-label">レア度をえらぶ（デモ用）</div>
+      <div class="picker-options" id="rarityPicker">
+        <button type="button" class="picker-btn" data-key="random">ランダム</button>
+        <button type="button" class="picker-btn" data-key="normal">ノーマル</button>
+        <button type="button" class="picker-btn" data-key="rare">レア</button>
+        <button type="button" class="picker-btn active" data-key="super">SSレア</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="animals-manifest.js"></script>
+<script>
+  const ANIMALS = window.ANIMALS_MANIFEST || [];
+
+  // URLパラメータ ?animalId=250 のように指定すると、その生きもので固定できる
+  const urlParams = new URLSearchParams(location.search);
+  const requestedAnimalId = urlParams.get("animalId");
+
+  const RARITY_TABLE = [
+    {
+      key: "super", label: "SSレア", weight: 10, message: "すごい発見だ！！",
+      chargeGlow: "rgba(255, 209, 102, 0.95)", ringCount: 4, ringGap: 150,
+      shakeClass: "shake-big", flashClass: "super", rayCount: 10,
+      particleCount: 44, icons: ["🐟", "✨", "⭐", "💧"],
+    },
+    {
+      key: "rare", label: "レア", weight: 30, message: "やったね、レアだ！",
+      chargeGlow: "rgba(111, 199, 255, 0.95)", ringCount: 2, ringGap: 240,
+      shakeClass: "shake", flashClass: "play", rayCount: 0,
+      particleCount: 24, icons: ["🐟", "✨", "💧"],
+    },
+    {
+      key: "normal", label: "ノーマル", weight: 60, message: "はっけん！",
+      chargeGlow: "rgba(185, 198, 221, 0.9)", ringCount: 1, ringGap: 0,
+      shakeClass: null, flashClass: null, rayCount: 0,
+      particleCount: 12, icons: ["🐟", "💧"],
+    },
+  ];
+
+  let forcedRarityKey = "super"; // 一旦テスト用: SSレア固定（「ランダム」ボタンで元に戻せる）
+
+  function pickRarity() {
+    if (forcedRarityKey !== "random") {
+      const forced = RARITY_TABLE.find((r) => r.key === forcedRarityKey);
+      if (forced) return forced;
+    }
+    const total = RARITY_TABLE.reduce((s, r) => s + r.weight, 0);
+    let n = Math.random() * total;
+    for (const r of RARITY_TABLE) {
+      if (n < r.weight) return r;
+      n -= r.weight;
+    }
+    return RARITY_TABLE[RARITY_TABLE.length - 1];
+  }
+
+  function pickAnimal() {
+    if (requestedAnimalId) {
+      const found = ANIMALS.find((a) => a.id === requestedAnimalId);
+      if (found) return found;
+    }
+    return ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+  }
+
+  function vibrate(pattern) {
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(pattern);
+    }
+  }
+
+  function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  // --- SE（Web Audio APIでその場で合成。音声ファイルは使わない。デフォルトON） ---
+  const MUTE_STORAGE_KEY = "gachaMuted";
+  let muted = localStorage.getItem(MUTE_STORAGE_KEY) === "1";
+  let audioCtx = null;
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      audioCtx = new Ctx();
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+  }
+
+  function playNoiseBurst({ duration = 0.35, filterFreq = 900, gain = 0.22 } = {}) {
+    if (muted) return;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = filterFreq;
+    const g = ctx.createGain();
+    g.gain.value = gain;
+    noise.connect(filter).connect(g).connect(ctx.destination);
+    noise.start();
+  }
+
+  function playTone(freq, { duration = 0.4, delay = 0, type = "sine", gain = 0.16 } = {}) {
+    if (muted) return;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const g = ctx.createGain();
+    const start = ctx.currentTime + delay;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.linearRampToValueAtTime(gain, start + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + 0.05);
+  }
+
+  function playChargeSwell() {
+    if (muted) return;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(120, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(220, ctx.currentTime + 0.85);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.14, ctx.currentTime + 0.7);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.9);
+    osc.connect(g).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.95);
+  }
+
+  function playSplash() {
+    playNoiseBurst({ duration: 0.4, filterFreq: 1200, gain: 0.28 });
+  }
+
+  const CHIME_NOTES = {
+    normal: [523.25],
+    rare: [523.25, 659.25],
+    super: [523.25, 659.25, 783.99, 1046.5],
+  };
+
+  function playChime(rarityKey) {
+    const notes = CHIME_NOTES[rarityKey] || CHIME_NOTES.normal;
+    notes.forEach((freq, i) => playTone(freq, { delay: i * 0.12, duration: 0.55, gain: 0.16 }));
+  }
+
+  const muteBtn = document.getElementById("muteBtn");
+  function updateMuteBtn() {
+    muteBtn.textContent = muted ? "🔇" : "🔊";
+  }
+  updateMuteBtn();
+  muteBtn.addEventListener("click", () => {
+    muted = !muted;
+    localStorage.setItem(MUTE_STORAGE_KEY, muted ? "1" : "0");
+    updateMuteBtn();
+    if (!muted) getAudioCtx();
+  });
+
+  if (!muted) getAudioCtx();
+  function tryResumeOnInteraction() {
+    if (muted) return;
+    const ctx = getAudioCtx();
+    if (ctx && ctx.state === "running") {
+      ["pointerdown", "touchstart", "click", "keydown"].forEach((type) =>
+        document.removeEventListener(type, tryResumeOnInteraction)
+      );
+    }
+  }
+  ["pointerdown", "touchstart", "click", "keydown"].forEach((type) =>
+    document.addEventListener(type, tryResumeOnInteraction)
+  );
+
+  function spawnParticles(container, count, icons) {
+    container.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement("div");
+      s.className = "sparkle";
+      s.textContent = icons[Math.floor(Math.random() * icons.length)];
+      const angle = (-Math.PI / 2) + (Math.random() - 0.5) * Math.PI * 1.2;
+      const dist = 100 + Math.random() * 260;
+      const x = Math.cos(angle) * dist;
+      const y = Math.sin(angle) * dist;
+      s.style.left = "50%";
+      s.style.top = "60%";
+      s.style.fontSize = `${13 + Math.random() * 14}px`;
+      s.style.setProperty("--end", `translate(${x}px, ${y}px)`);
+      s.style.setProperty("--spin", `${(Math.random() * 2 - 1) * 180}deg`);
+      s.style.animationDelay = `${Math.random() * 0.35}s`;
+      container.appendChild(s);
+      requestAnimationFrame(() => s.classList.add("on"));
+    }
+  }
+
+  function spawnRings(container, count, gap, color) {
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const r = document.createElement("div");
+        r.className = "charge-ring";
+        r.style.borderColor = color;
+        container.appendChild(r);
+        requestAnimationFrame(() => r.classList.add("on"));
+      }, i * gap);
+    }
+  }
+
+  function spawnRays(container, count) {
+    container.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const ray = document.createElement("div");
+      ray.className = "ray";
+      const rot = -90 + (i / (count - 1) - 0.5) * 150;
+      ray.style.setProperty("--rot", `${rot}deg`);
+      container.appendChild(ray);
+      requestAnimationFrame(() => ray.classList.add("on"));
+    }
+  }
+
+  const appEl = document.getElementById("app");
+  const flashOverlay = document.getElementById("flashOverlay");
+  const rings = document.getElementById("rings");
+  const water = document.getElementById("water");
+  const rays = document.getElementById("rays");
+  const burst = document.getElementById("burst");
+  const cardWrap = document.getElementById("cardWrap");
+  const cardImg = document.getElementById("cardImg");
+  const particles = document.getElementById("particles");
+  const result = document.getElementById("result");
+  const rarityBadge = document.getElementById("rarityBadge");
+  const resultName = document.getElementById("resultName");
+  const resultSub = document.getElementById("resultSub");
+  const pullBtn = document.getElementById("pullBtn");
+
+  function resetStage() {
+    appEl.classList.remove("shake", "shake-big");
+    flashOverlay.className = "flash-overlay";
+    rings.innerHTML = "";
+    rays.innerHTML = "";
+    water.classList.remove("surge");
+    burst.className = "burst";
+    cardWrap.className = "card-wrap";
+    cardWrap.removeAttribute("data-rarity");
+    particles.innerHTML = "";
+    result.classList.remove("show");
+  }
+
+  async function playGacha() {
+    if (!ANIMALS.length) {
+      alert("images/animals にまだ画像がありません。build-manifest.mjs を再実行してください。");
+      return;
+    }
+    pullBtn.disabled = true;
+    resetStage();
+
+    const animal = pickAnimal();
+    const rarity = pickRarity();
+    cardImg.src = animal.file;
+    cardImg.alt = animal.name;
+
+    // 1. 水面に波紋が広がって、何かが来る予感を出す
+    if (rarity.ringCount > 0) spawnRings(rings, rarity.ringCount, rarity.ringGap || 260, rarity.chargeGlow);
+    playChargeSwell();
+    vibrate([40, 60, 40]);
+    await sleep(900);
+
+    // 2. ザバァッ！ 水面が跳ねて生きものが飛び出す
+    water.classList.add("surge");
+    burst.classList.add("play");
+    playSplash();
+    if (rarity.flashClass) flashOverlay.classList.add(rarity.flashClass);
+    if (rarity.shakeClass) appEl.classList.add(rarity.shakeClass);
+    if (rarity.rayCount > 0) spawnRays(rays, rarity.rayCount);
+    vibrate(rarity.key === "super" ? [0, 30, 40, 30, 140] : rarity.key === "rare" ? [0, 25, 30, 60] : [0, 60]);
+
+    // 3. カードが水面から飛び出す
+    cardWrap.setAttribute("data-rarity", rarity.key);
+    cardWrap.classList.add("reveal");
+    await sleep(500);
+    spawnParticles(particles, rarity.particleCount, rarity.icons);
+    playChime(rarity.key);
+
+    // 4. 結果テキスト表示
+    rarityBadge.textContent = rarity.label;
+    rarityBadge.className = `rarity-badge ${rarity.key}`;
+    resultName.textContent = `${animal.name} を${rarity.message}`;
+    resultSub.textContent = `${animal.scientificName} / ${animal.family || ""}`;
+    result.classList.add("show");
+
+    pullBtn.disabled = false;
+    pullBtn.textContent = "もういちどたたく";
+  }
+
+  pullBtn.addEventListener("click", playGacha);
+
+  const rarityPicker = document.getElementById("rarityPicker");
+  rarityPicker.addEventListener("click", (e) => {
+    const btn = e.target.closest(".picker-btn");
+    if (!btn) return;
+    forcedRarityKey = btn.dataset.key;
+    rarityPicker.querySelectorAll(".picker-btn").forEach((b) => b.classList.toggle("active", b === btn));
+  });
+</script>
+</body>
+</html>

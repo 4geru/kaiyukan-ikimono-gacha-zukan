@@ -1,0 +1,97 @@
+[
+  {
+    "name": "日本の森",
+    "slug": "japanforest",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_japanforest-thumb-100xauto-71995.png"
+  },
+  {
+    "name": "アリューシャン列島",
+    "slug": "aleutian",
+    "img": "/connect/encyclopedia/assets_c/2024/12/8330eed55c386d3209f6122034ddb4bd77f35e27-thumb-96x96-71994.png"
+  },
+  {
+    "name": "モンタレー湾",
+    "slug": "monterey",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_monterey-thumb-96x96-71992.png"
+  },
+  {
+    "name": "パナマ湾",
+    "slug": "panama",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_panama-thumb-96x96-71991.png"
+  },
+  {
+    "name": "エクアドル熱帯雨林",
+    "slug": "ecuador",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_ecuador-thumb-96x96-71990.png"
+  },
+  {
+    "name": "南極大陸",
+    "slug": "antarctica",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_antarctica-thumb-96x96-71989.png"
+  },
+  {
+    "name": "タスマン海",
+    "slug": "tasman",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_tasman-thumb-96x96-71988.png"
+  },
+  {
+    "name": "グレート・バリア・リーフ",
+    "slug": "gbr",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_gbr-thumb-96x96-71987.png"
+  },
+  {
+    "name": "太平洋",
+    "slug": "pacific",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_pacific-thumb-96x96-71986.png"
+  },
+  {
+    "name": "瀬戸内海",
+    "slug": "seto",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_seto-thumb-96x96-71985.png"
+  },
+  {
+    "name": "特設水槽",
+    "slug": "seasonal_exhibits",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_kelp-thumb-96x96-71984.png"
+  },
+  {
+    "name": "チリの岩礁地帯",
+    "slug": "chile",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_chile-thumb-96x96-71983.png"
+  },
+  {
+    "name": "クック海峡",
+    "slug": "cook",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_cook-thumb-96x96-71982.png"
+  },
+  {
+    "name": "日本海溝",
+    "slug": "japandeep",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_japandeep-thumb-96x96-71981.png"
+  },
+  {
+    "name": "アクアゲート",
+    "slug": "aquagate",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_aquagate-thumb-96x96-71980.png"
+  },
+  {
+    "name": "海月銀河",
+    "slug": "jellyfish",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_jellyfish-thumb-96x96-71979.png"
+  },
+  {
+    "name": "北極圏",
+    "slug": "arctic",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_arctic-thumb-96x96-71978.png"
+  },
+  {
+    "name": "フォークランド諸島（マルビナス）",
+    "slug": "falkland",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_falkland-thumb-96x96-71976.png"
+  },
+  {
+    "name": "企画展示/ぎゅぎゅっとキュート",
+    "slug": "gyugyutto_cute",
+    "img": "/connect/encyclopedia/assets_c/2024/12/area_img_gyugyutto_cute-thumb-96x96-71975.png"
+  }
+]

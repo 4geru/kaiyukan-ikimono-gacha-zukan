@@ -1,0 +1,126 @@
+{
+  "type": "flex",
+  "altText": "候補が3件見つかりました: タマカイ、ギンガメアジ、イヌザメ",
+  "contents": {
+    "type": "carousel",
+    "contents": [
+      {
+        "type": "bubble",
+        "hero": {
+          "type": "image",
+          "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/066_tamakai_thumb.jpg",
+          "size": "full",
+          "aspectRatio": "1:1",
+          "aspectMode": "cover"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "text",
+              "text": "タマカイ",
+              "weight": "bold",
+              "size": "lg",
+              "wrap": true
+            }
+          ]
+        },
+        "footer": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "button",
+              "style": "primary",
+              "action": {
+                "type": "postback",
+                "label": "これを選ぶ",
+                "data": "action=selectFish&animalId=66",
+                "displayText": "タマカイ"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "bubble",
+        "hero": {
+          "type": "image",
+          "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/057_gingameaji_thumb.jpg",
+          "size": "full",
+          "aspectRatio": "1:1",
+          "aspectMode": "cover"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "text",
+              "text": "ギンガメアジ",
+              "weight": "bold",
+              "size": "lg",
+              "wrap": true
+            }
+          ]
+        },
+        "footer": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "button",
+              "style": "primary",
+              "action": {
+                "type": "postback",
+                "label": "これを選ぶ",
+                "data": "action=selectFish&animalId=57",
+                "displayText": "ギンガメアジ"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "bubble",
+        "hero": {
+          "type": "image",
+          "url": "https://www.kaiyukan.com/connect/encyclopedia/_data/inuzame_thumb.jpg",
+          "size": "full",
+          "aspectRatio": "1:1",
+          "aspectMode": "cover"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "text",
+              "text": "イヌザメ",
+              "weight": "bold",
+              "size": "lg",
+              "wrap": true
+            }
+          ]
+        },
+        "footer": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [
+            {
+              "type": "button",
+              "style": "primary",
+              "action": {
+                "type": "postback",
+                "label": "これを選ぶ",
+                "data": "action=selectFish&animalId=226",
+                "displayText": "イヌザメ"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

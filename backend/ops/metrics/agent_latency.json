@@ -1,0 +1,14 @@
+{
+  "name": "agent_latency",
+  "description": "エージェント1回の所要時間（ミリ秒）の分布。p95 は Metrics Explorer で 95 パーセンタイル表示",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"agent_run\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "DISTRIBUTION",
+    "unit": "ms",
+    "labels": [{"key": "agent", "valueType": "STRING"}]
+  },
+  "valueExtractor": "EXTRACT(jsonPayload.latencyMs)",
+  "labelExtractors": {"agent": "EXTRACT(jsonPayload.agent)"},
+  "bucketOptions": {"exponentialBuckets": {"numFiniteBuckets": 32, "growthFactor": 1.4, "scale": 100}}
+}

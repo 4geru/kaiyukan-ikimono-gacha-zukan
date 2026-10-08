@@ -1,0 +1,47 @@
+{
+  "type": "flex",
+  "altText": "なぞの生きもの…？図鑑には載っていないみたい",
+  "contents": {
+    "type": "bubble",
+    "header": {
+      "type": "box",
+      "layout": "vertical",
+      "backgroundColor": "#4ECDC4",
+      "paddingAll": "md",
+      "contents": [
+        {
+          "type": "text",
+          "text": "🌊 なぞの生きもの…？",
+          "color": "#FFFFFF",
+          "weight": "bold",
+          "size": "sm"
+        }
+      ]
+    },
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "spacing": "sm",
+      "contents": [
+        {
+          "type": "text",
+          "text": "海遊館の図鑑には載っていないみたい。",
+          "size": "sm",
+          "wrap": true
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "text",
+          "text": "もう一度、案内板の文字がよく見える角度で撮ってみてね📷",
+          "size": "sm",
+          "wrap": true,
+          "margin": "md",
+          "color": "#8A94A6"
+        }
+      ]
+    }
+  }
+}

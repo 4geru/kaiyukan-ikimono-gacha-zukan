@@ -1,0 +1,40 @@
+rules_version = '2';
+
+// LIFF(ミニアプリ)のブラウザからは、自分のデータ（users/{自分のuid}以下のうちusers本体とcollection、
+// animals/{animalId}/quizHistory）の読み取りだけを許可する。
+// uidはバックエンドの /auth/line が発行するFirebaseカスタムトークンで、LINE userIdと同じ値
+// （docs/specs/785-liff-firebase-auth/design.md 4節）。書き込みはすべて拒否（Botのバックエンドは
+// Admin SDKなのでルールの対象外）。pendingQuizは正解(correctIndex)を含むため、パスを明示して許可しない。
+// quizHistoryは回答済みの出題履歴（category/question/choices/correctIndex/askedAt/isCorrect）。回答後にだけ書かれるため、
+// 正解(correctIndex)を含んでいても出題中の問題の答えは漏れない（出題中はpendingQuizにあり、読めない）。
+// #829（難易度とヒント）: users/{uid}.quizProfile（レベル・直近の結果・決定の記録）は正解を含まないので、本人が get できる。
+// #832: users/{uid}/agentRuns（駅の判断の記録）も本人だけが読める。config/runtime（停止スイッチ）と webhookEvents は既存の全拒否のまま。
+// pendingQuiz は正解に加えてヒント・解説（hint/explanation）も持つため、引き続き誰も読めない。ルール本体は変更なし。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);          // list（他人の一覧の取得）は許可しない
+
+      match /collection/{animalId} {
+        allow get, list: if isOwner(userId);
+      }
+
+      match /animals/{animalId}/quizHistory/{historyId} {
+        allow get, list: if isOwner(userId);
+      }
+
+      // #832: 駅の水族館エージェントの判断の記録（起点駅・ツールの順・件数・結果。入力の自由文は含まない）。30日でTTL削除。
+      match /agentRuns/{runId} {
+        allow get, list: if isOwner(userId);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;            // animalMaster などその他はすべて拒否
+    }
+  }
+}

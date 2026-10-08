@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>コレクション帳</title>
+<style>
+  :root {
+    --bg-top: #062038;
+    --bg-bottom: #01060f;
+    --text: #f3f6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: radial-gradient(ellipse at 50% 15%, var(--bg-top), var(--bg-bottom) 70%);
+    color: var(--text);
+    font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+    overflow-x: hidden;
+  }
+  .app {
+    min-height: 100%;
+    min-height: 100dvh;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    position: relative;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; text-align: center; }
+  .sub { font-size: 12px; opacity: 0.6; text-align: center; margin: 0 0 20px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 12px;
+  }
+  .card-tile {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0e1830;
+    border: 2px solid #445;
+    aspect-ratio: 1 / 1;
+    position: relative;
+  }
+  .card-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .card-tile[data-rarity="normal"] { border-color: #b9c6dd; }
+  .card-tile[data-rarity="rare"] { border-color: #6fc7ff; box-shadow: 0 0 10px 1px rgba(111,199,255,0.5); }
+  .card-tile[data-rarity="super"] { border-color: #ffd166; border-width: 3px; box-shadow: 0 0 14px 2px rgba(255,209,102,0.6); }
+  .card-name {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    background: linear-gradient(0deg, rgba(0,0,0,0.75), rgba(0,0,0,0));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .complete-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #ffd166;
+    color: #4a2200;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 1px 6px;
+    border-radius: 999px;
+  }
+
+  .empty-state {
+    text-align: center;
+    opacity: 0.6;
+    font-size: 13px;
+    margin-top: 60px;
+  }
+
+  .error-screen { text-align: center; padding: 24px; }
+  .error-screen p { opacity: 0.8; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div id="errorScreen" class="error-screen" hidden>
+    <p id="errorMessage">読み込みに失敗しました</p>
+  </div>
+
+  <div id="collectionRoot" hidden>
+    <h1>コレクション帳</h1>
+    <p class="sub" id="countLabel"></p>
+    <div class="grid" id="grid"></div>
+    <p class="empty-state" id="emptyState" hidden>まだ生きものを見つけていないよ。LINEで案内板の写真を送ってみよう！</p>
+  </div>
+</div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script type="module">
+  import { getCurrentUser } from "./shared/liff-client.js";
+  import { watchCollection } from "./shared/firestore-client.js";
+  import { lookupAnimal } from "./shared/animals-lookup.js";
+  import "./shared/rank-badge.js";
+
+  const appEl = document.getElementById("app");
+  const errorScreen = document.getElementById("errorScreen");
+  const errorMessage = document.getElementById("errorMessage");
+  const collectionRoot = document.getElementById("collectionRoot");
+  const grid = document.getElementById("grid");
+  const emptyState = document.getElementById("emptyState");
+  const countLabel = document.getElementById("countLabel");
+
+  function showError(message) {
+    errorMessage.textContent = message;
+    errorScreen.hidden = false;
+    collectionRoot.hidden = true;
+  }
+
+  async function renderEntries(entries) {
+    grid.innerHTML = "";
+    countLabel.textContent = `${entries.length}種 発見済み`;
+    emptyState.hidden = entries.length > 0;
+
+    const animals = await Promise.all(
+      entries.map((entry) => lookupAnimal(entry.id, entry.name))
+    );
+
+    entries.forEach((entry, i) => {
+      const animal = animals[i];
+      const a = document.createElement("a");
+      a.className = "card-tile";
+      a.href = `card.html?animalId=${encodeURIComponent(entry.id)}`;
+      a.dataset.rarity = entry.rarity || "normal";
+
+      const img = document.createElement("img");
+      img.src = animal.file;
+      img.alt = animal.name;
+      a.appendChild(img);
+
+      const name = document.createElement("div");
+      name.className = "card-name";
+      name.textContent = animal.name;
+      a.appendChild(name);
+
+      if (entry.completed) {
+        const badge = document.createElement("div");
+        badge.className = "complete-badge";
+        badge.textContent = "コンプリート";
+        a.appendChild(badge);
+      }
+
+      grid.appendChild(a);
+    });
+  }
+
+  async function main() {
+    const user = await getCurrentUser();
+    if (!user) return; // liff.login()でリダイレクト中
+
+    const rankBadge = document.createElement("rank-badge");
+    rankBadge.setAttribute("user-id", user.userId);
+    appEl.appendChild(rankBadge);
+
+    collectionRoot.hidden = false;
+
+    await watchCollection(user.userId, (entries) => {
+      renderEntries(entries).catch((error) => {
+        console.error(error);
+        showError("読み込みに失敗しました");
+      });
+    });
+  }
+
+  main().catch((error) => {
+    console.error(error);
+    showError("読み込みに失敗しました");
+  });
+</script>
+</body>
+</html>

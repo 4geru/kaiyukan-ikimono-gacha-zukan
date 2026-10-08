@@ -1,0 +1,18 @@
+{
+  "name": "llm_calls",
+  "description": "エージェント以外の LLM 呼び出し（llm_call）の件数。purpose・ok 別",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"llm_call\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "unit": "1",
+    "labels": [
+      {"key": "purpose", "valueType": "STRING"},
+      {"key": "ok", "valueType": "STRING"}
+    ]
+  },
+  "labelExtractors": {
+    "purpose": "EXTRACT(jsonPayload.purpose)",
+    "ok": "EXTRACT(jsonPayload.ok)"
+  }
+}

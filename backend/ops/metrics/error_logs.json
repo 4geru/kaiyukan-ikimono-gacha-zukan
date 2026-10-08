@@ -1,0 +1,6 @@
+{
+  "name": "error_logs",
+  "description": "severity>=ERROR のログの件数（アラートの分子）",
+  "filter": "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"kaiyukan-gacha-bot\" AND severity>=ERROR",
+  "metricDescriptor": {"metricKind": "DELTA", "valueType": "INT64", "unit": "1"}
+}

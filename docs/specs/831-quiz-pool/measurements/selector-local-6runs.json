@@ -1,0 +1,80 @@
+[
+  {
+    "animalId": "48",
+    "level": 2,
+    "candidates": 13,
+    "ms": 2205,
+    "selectedBy": "agent",
+    "fallbackCause": null,
+    "chosen": "48-同じ水槽にいる魚-2",
+    "reason": "直前に外したカテゴリを避け、groundedな問題を選択",
+    "outcome": "ok",
+    "inputTokens": 1085,
+    "outputTokens": 41
+  },
+  {
+    "animalId": "206",
+    "level": 2,
+    "candidates": 13,
+    "ms": 1654,
+    "selectedBy": "agent",
+    "fallbackCause": null,
+    "chosen": "206-海外の小ネタ-2",
+    "reason": "直前に外したカテゴリは避け、話題を変えるため。",
+    "outcome": "ok",
+    "inputTokens": 1097,
+    "outputTokens": 33
+  },
+  {
+    "animalId": "33",
+    "level": 3,
+    "candidates": 10,
+    "ms": 1309,
+    "selectedBy": "agent",
+    "fallbackCause": null,
+    "chosen": "33-豆知識-3",
+    "reason": "直近で外したカテゴリ「生息地」を避け、豆知識で変化をつける",
+    "outcome": "ok",
+    "inputTokens": 907,
+    "outputTokens": 37
+  },
+  {
+    "animalId": "48",
+    "level": 3,
+    "candidates": 11,
+    "ms": 1245,
+    "selectedBy": "agent",
+    "fallbackCause": null,
+    "chosen": "48-豆知識-3",
+    "reason": "直近で外したカテゴリを避け、公式データに基づく",
+    "outcome": "ok",
+    "inputTokens": 981,
+    "outputTokens": 29
+  },
+  {
+    "animalId": "206",
+    "level": 3,
+    "candidates": 12,
+    "ms": 1232,
+    "selectedBy": "agent",
+    "fallbackCause": null,
+    "chosen": "206-同じ水槽にいる魚-3",
+    "reason": "直前に外したカテゴリは避け、公式データに基づく問題を選ぶ",
+    "outcome": "ok",
+    "inputTokens": 1022,
+    "outputTokens": 35
+  },
+  {
+    "animalId": "33",
+    "level": 2,
+    "candidates": 11,
+    "ms": 1273,
+    "selectedBy": "agent",
+    "fallbackCause": null,
+    "chosen": "33-特徴-2",
+    "reason": "直近で外した生息地を避け、公式データに基づく分かりやすい特徴に",
+    "outcome": "ok",
+    "inputTokens": 958,
+    "outputTokens": 34
+  }
+]

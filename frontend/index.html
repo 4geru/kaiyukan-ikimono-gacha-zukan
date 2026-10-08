@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>海遊館いきものガチャ図鑑 — 博士と助教授のひみつ研究室</title>
+<meta name="description" content="水槽の解説パネルを撮ってLINEに送ると、海遊館の243種から図鑑に登録。カワウソ助教授とジンベエ名誉教授がクイズや駅からの水族館探しを案内します。" />
+<meta property="og:title" content="海遊館いきものガチャ図鑑 — 博士と助教授のひみつ研究室" />
+<meta property="og:description" content="魚ではなく、解説パネルを撮る。LINEで遊ぶ海遊館の生きもの図鑑。" />
+<meta property="og:image" content="https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-1-panel.jpg" />
+<meta name="theme-color" content="#04182b" />
+<!-- 入口の振り分け（LP を描く前に同期で判定。liff.init は呼ばない）。
+     この URL（/）は LIFF の Endpoint URL（frontend/Makefile build-liff のコメント・shared/config.js の LIFF_IDS）。
+     LINE から開かれたときは LP を出さず、従来どおり liff.init() → 図鑑（zukan.html）へ。
+     判定:
+       (1) User-Agent に "Line/"（LINE アプリ内ブラウザ・LIFF/ミニアプリ。liff.init 前から見える）
+       (2) クエリに liff.state（LIFF URL の後ろのパス）/ liffClientId・liffRedirectUri（外部ブラウザでの LIFF ログインの戻り）
+       (3) ハッシュに access_token（LIFF の認可結果）
+     どれでもない＝ブラウザで直接開いたときだけ LP を表示する。 -->
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    var isLiff = /\bLine\//.test(navigator.userAgent) ||
+      q.has("liff.state") || q.has("liffClientId") || q.has("liffRedirectUri") ||
+      /(^|[#&])access_token=/.test(location.hash);
+    if (isLiff) document.documentElement.classList.add("is-liff");
+  })();
+</script>
+<style>
+  :root {
+    --deep: #02101f; --water: #06294a; --glass: #0b3a5e;
+    --ink: #eef6ff; --muted: #a9c3dc; --line: rgba(120, 200, 255, 0.22);
+    --aqua: #5fd3e6; --teal: #2fbfa8; --sun: #ffcf5c;
+    --paper: #f6f1e4; --paper-ink: #1d2a35; --paper-muted: #55636e; --paper-rule: #d8cfb8;
+    --line-green: #06c755;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--deep);
+    background-image:
+      radial-gradient(120% 60% at 50% -10%, #0e4c78 0%, rgba(14, 76, 120, 0) 60%),
+      linear-gradient(180deg, #04213b 0%, var(--deep) 55%);
+    background-repeat: no-repeat;
+    color: var(--ink); line-height: 1.8; font-size: 15px;
+    font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .is-liff #lp { display: none; }
+  #loading { display: none; text-align: center; opacity: .6; font-size: 13px; margin-top: 40vh; }
+  .is-liff #loading { display: block; }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--aqua); }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; }
+  section { padding-block: 40px; }
+
+  /* 見出し: 展示エリアの番号札 */
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin: 0 0 20px; }
+  .sec-head .tag { flex: none; font-size: 11px; letter-spacing: .14em; color: var(--deep); background: var(--aqua); padding: 2px 9px; border-radius: 4px; font-weight: 700; }
+  .sec-head h2 { margin: 0; font-size: clamp(19px, 3.2vw, 24px); line-height: 1.4; }
+
+  /* ヒーロー */
+  .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 36px; align-items: center; padding-block: 56px 28px; }
+  .eyebrow { margin: 0 0 10px; color: var(--aqua); font-size: 13px; letter-spacing: .12em; }
+  .hero h1 { margin: 0 0 18px; font-size: clamp(28px, 5.4vw, 46px); line-height: 1.3; letter-spacing: .01em; }
+  .hero h1 .nb { display: inline-block; }
+  .hero h1 .sub { display: block; margin-top: 8px; font-size: .48em; color: var(--sun); letter-spacing: .04em; }
+  .lead { margin: 0 0 26px; color: var(--muted); font-size: 16px; }
+  .lead b { color: var(--ink); background: linear-gradient(transparent 62%, rgba(95, 211, 230, .35) 62%); }
+  .portrait { position: relative; }
+  .portrait img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 50% 50% 22px 22px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0, 0, 0, .55); }
+  .portrait figcaption { margin-top: 10px; text-align: center; font-size: 12px; color: var(--muted); }
+
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 22px; border-radius: 999px; font-weight: 700; text-decoration: none; color: #fff; background: var(--line-green); }
+  .btn.ghost { background: transparent; color: var(--aqua); border: 1.5px solid var(--aqua); }
+  .btn:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+
+  /* 解説パネル（作品の主張そのものをパネルの体裁で見せる） */
+  .panel { background: var(--paper); color: var(--paper-ink); border-radius: 6px; box-shadow: 0 0 0 6px #0d2c47, 0 0 0 7px var(--line), 0 20px 40px rgba(0, 0, 0, .45); overflow: hidden; }
+  .panel-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 22px; background: #123d5f; color: #e6f3ff; font-size: 12px; letter-spacing: .1em; }
+  .panel-body { padding: 24px 22px 26px; }
+  .panel h3 { margin: 0 0 4px; font-size: clamp(20px, 3.4vw, 26px); }
+  .panel .latin { margin: 0 0 18px; color: var(--paper-muted); font-size: 13px; font-style: italic; letter-spacing: .04em; }
+  .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--paper-rule); }
+  .why li { padding: 16px 18px 6px 0; }
+  .why li + li { padding-left: 18px; border-left: 1px solid var(--paper-rule); }
+  .why .n { display: block; font-size: 30px; font-weight: 800; color: #1a8f8f; line-height: 1; margin-bottom: 8px; }
+  .why b { display: block; font-size: 16px; margin-bottom: 4px; }
+  .why span { color: var(--paper-muted); font-size: 14px; }
+
+  /* 使い方 */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .steps li { background: rgba(11, 58, 94, .55); border: 1px solid var(--line); border-radius: 16px; padding: 12px 12px 16px; }
+  .steps .shot { position: relative; margin-bottom: 12px; }
+  .steps .shot img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; background: #0a2a45; }
+  .steps .shot::after { counter-increment: s; content: counter(s); position: absolute; left: 8px; top: 8px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--sun); color: #2a1d00; font-weight: 800; font-size: 15px; }
+  .steps b { display: block; font-size: 15px; }
+  .steps span { color: var(--muted); font-size: 13.5px; }
+
+  /* 友だち追加 */
+  .friend { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; background: linear-gradient(135deg, rgba(6, 199, 85, .14), rgba(11, 58, 94, .5)); border: 1px solid rgba(6, 199, 85, .45); border-radius: 20px; padding: 24px; }
+  .friend .qr { width: 168px; height: 168px; background: #fff; padding: 8px; border-radius: 14px; image-rendering: pixelated; }
+  .friend p { margin: 0 0 10px; }
+  .id { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 18px; background: rgba(255, 255, 255, .1); padding: 2px 10px; border-radius: 6px; user-select: all; }
+  .small { font-size: 13px; color: var(--muted); }
+
+  /* 審査員の方へ */
+  .try { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .box { background: rgba(11, 58, 94, .55); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; }
+  .box h3 { margin: 0 0 10px; font-size: 16px; color: var(--sun); }
+  .box ol, .box ul { margin: 0; padding-left: 1.3em; }
+  .box li { margin-bottom: 8px; color: var(--muted); font-size: 14px; }
+  .box li b { color: var(--ink); }
+  .note { margin-top: 16px; padding: 12px 16px; border-left: 4px solid var(--sun); background: rgba(255, 207, 92, .08); border-radius: 0 10px 10px 0; font-size: 14px; }
+  .note p { margin: 0; }
+  .note p + p { margin-top: 6px; }
+
+  /* 技術 */
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+  .stat { border-top: 2px solid var(--aqua); padding-top: 12px; }
+  .stat .v { font-size: clamp(30px, 6vw, 44px); font-weight: 800; line-height: 1.1; color: var(--ink); }
+  .stat .v small { font-size: .45em; margin-left: 2px; color: var(--muted); font-weight: 700; }
+  .stat .k { font-size: 13px; color: var(--muted); }
+  .tech { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 0 0 16px; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .tech li { padding: 14px 16px; font-size: 13.5px; color: var(--muted); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .tech li:nth-child(3n) { border-right: 0; }
+  .tech li:nth-last-child(-n+3) { border-bottom: 0; }
+  .tech b { display: block; color: var(--aqua); font-size: 14.5px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 20px calc(36px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--line); margin-top: 24px; }
+
+  @media (max-width: 860px) {
+    .steps { grid-template-columns: repeat(2, 1fr); }
+    .tech { grid-template-columns: repeat(2, 1fr); }
+    .tech li:nth-child(3n) { border-right: 1px solid var(--line); }
+    .tech li:nth-child(2n) { border-right: 0; }
+    .tech li:nth-last-child(-n+3) { border-bottom: 1px solid var(--line); }
+    .tech li:nth-last-child(-n+2) { border-bottom: 0; }
+  }
+  @media (max-width: 720px) {
+    body { font-size: 14.5px; }
+    .hero { grid-template-columns: 1fr; gap: 22px; padding-block: 28px 8px; }
+    .portrait { order: -1; max-width: 260px; margin: 0 auto; }
+    .lead { font-size: 15px; }
+    .btns .btn { flex: 1 1 100%; }
+    section { padding-block: 30px; }
+    .why { grid-template-columns: 1fr; }
+    .why li, .why li + li { padding: 14px 0 10px; border-left: 0; }
+    .why li + li { border-top: 1px dashed var(--paper-rule); }
+    .panel-body { padding: 20px 18px 18px; }
+    .friend { grid-template-columns: 1fr; justify-items: center; text-align: center; padding: 22px 18px; }
+    .try { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 420px) {
+    .steps { gap: 10px; }
+    .steps li { padding: 8px 8px 12px; }
+    .tech { grid-template-columns: 1fr; }
+    .tech li, .tech li:nth-child(n) { border-right: 0; border-bottom: 1px solid var(--line); }
+    .tech li:last-child { border-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+<p id="loading">読み込み中…</p>
+
+<main id="lp">
+  <header class="wrap hero">
+    <div>
+      <p class="eyebrow">LINE で遊ぶ、海遊館の生きもの図鑑</p>
+      <h1><span class="nb">海遊館</span><span class="nb">いきもの</span><span class="nb">ガチャ図鑑</span><span class="sub">博士と助教授のひみつ研究室</span></h1>
+      <p class="lead">水槽の横の<b>解説パネルを撮って</b> LINE に送るだけ。Gemini が名前を読み取り、海遊館の243種から図鑑に登録します。カワウソ助教授とジンベエ名誉教授が、掛け合いでクイズや駅からの水族館探しを案内します。アプリのインストールは不要です。</p>
+      <div class="btns">
+        <a class="btn" href="https://line.me/R/ti/p/@894sfbup">LINE で友だち追加</a>
+        <a class="btn ghost" href="zukan.html?demo=1">LINE なしで図鑑を見る（デモ）</a>
+        <a class="btn ghost" href="#judges">審査員の方へ（試し方）</a>
+      </div>
+    </div>
+    <figure class="portrait" style="margin:0">
+      <img loading="lazy" src="lp-assets/duo.jpg" alt="案内役のジンベエ名誉教授（左）とカワウソ助教授（右）" width="720" height="720" />
+      <figcaption>案内役のジンベエ名誉教授（左）とカワウソ助教授（右）</figcaption>
+    </figure>
+  </header>
+
+  <div class="wrap"><section aria-labelledby="h-why">
+    <div class="sec-head"><span class="tag">IDEA</span><h2 id="h-why">魚ではなく、解説パネルを撮る</h2></div>
+    <article class="panel">
+      <div class="panel-top"><span>この作品のいちばんの工夫</span><span>NO. 01</span></div>
+      <div class="panel-body">
+        <h3>解説パネル</h3>
+        <p class="latin">水槽の横にあるのに、多くの人が読まずに通り過ぎる板</p>
+        <ul class="why">
+          <li><span class="n">01</span><b>名前が書いてあるので、間違いが少ない</b><span>泳ぐ魚の見た目から推測するより、パネルの文字を読むほうが確実です。</span></li>
+          <li><span class="n">02</span><b>撮るために、解説を読む習慣がつく</b><span>「読んで」と促すのではなく、撮る動機で解説に目を向けてもらいます。</span></li>
+          <li><span class="n">03</span><b>知った魚を、本物の水槽で探す</b><span>パネルで名前を知ってから水槽を見ると、通り過ぎていた魚が「探す対象」になります。</span></li>
+        </ul>
+      </div>
+    </article>
+  </section></div>
+
+  <div class="wrap"><section aria-labelledby="h-how">
+    <div class="sec-head"><span class="tag">HOW</span><h2 id="h-how">使い方</h2></div>
+    <ol class="steps">
+      <li><div class="shot"><img loading="lazy" src="https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-1-panel.jpg" alt="解説パネルを撮って送る" width="600" height="600" /></div><b>パネルを撮って送る</b><span>水槽の横の解説パネルを撮影して LINE に送ります。</span></li>
+      <li><div class="shot"><img loading="lazy" src="https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-2-zukan.jpg" alt="図鑑に登録" width="600" height="600" /></div><b>図鑑に登録</b><span>候補から選ぶとガチャ演出でカードが届き、同じ水槽・同じ科の仲間もたどれます。</span></li>
+      <li><div class="shot"><img loading="lazy" src="https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-3-quiz.jpg" alt="クイズに挑戦" width="600" height="600" /></div><b>クイズに挑戦</b><span>その生きものならではの三択クイズ。レベルに合わせて出題し、ヒントもあります。</span></li>
+      <li><div class="shot"><img loading="lazy" src="https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-4-station.jpg" alt="駅から水族館をさがす" width="600" height="600" /></div><b>水族館をさがす</b><span>「彦根駅から1時間で行ける水族館は？」と聞くと、関西15館から探します。</span></li>
+    </ol>
+  </section></div>
+
+  <div class="wrap"><section aria-labelledby="h-friend">
+    <div class="sec-head"><span class="tag">START</span><h2 id="h-friend">友だち追加</h2></div>
+    <div class="friend">
+      <img class="qr" loading="lazy" src="lp-assets/line-add-friend-qr.png" alt="LINE 友だち追加の QR コード（@894sfbup）" width="168" height="168" />
+      <div>
+        <p>LINE 公式アカウント「博士と助教授のひみつ研究室」</p>
+        <p>Bot ID: <span class="id">@894sfbup</span></p>
+        <p class="small">スマホの LINE で QR を読み取るか、ボタンから追加してください。PC の方は QR をスマホで読み取るのが確実です。</p>
+        <div class="btns"><a class="btn" href="https://line.me/R/ti/p/@894sfbup">友だち追加する</a></div>
+      </div>
+    </div>
+  </section></div>
+
+  <div class="wrap"><section id="judges" aria-labelledby="h-judges">
+    <div class="sec-head"><span class="tag">FOR JUDGES</span><h2 id="h-judges">審査員の方へ ／ 試し方</h2></div>
+    <div class="try">
+      <div class="box">
+        <h3>おすすめの順番</h3>
+        <ol>
+          <li><b>友だち追加</b>（上の QR かボタン）。使い方のカードが届きます。</li>
+          <li><b>メニューの「水槽から探す」</b>で水槽を選び、生きものを選ぶと図鑑に登録できます（解説パネルの写真がなくても試せます）。</li>
+          <li><b>名前を文字で送って</b>探すこともできます。<b>「ジンベエ」</b>のような生きものの名前や、<b>「太平洋」</b>のような水槽の名前を送ってください。写真で試すなら、<a href="https://github.com/4geru/kaiyukan-ikimono-gacha-zukan/tree/main/images/samples">海遊館で撮った展示の写真（見本）</a>を LINE に送ると、現地で撮ったときと同じように動きます。</li>
+          <li>登録後の<b>「クイズ」</b>で出題。ジンベエザメ・カクレクマノミ・ナンヨウマンタなど<b>人気の15種は問題を作り置き</b>しているので、数秒で届きます。</li>
+          <li><b>「彦根駅から1時間で行ける水族館は？」</b>のように送ると、駅すぱあと MCP を使うエージェントが探します（対象は関西の水族館です）。</li>
+          <li><b>メニューの「図鑑を見る」</b>で、集めた生きものを図鑑ページで見られます。</li>
+        </ol>
+      </div>
+      <div class="box">
+        <h3>先にお伝えしておくこと</h3>
+        <ul>
+          <li><b>写真を送る・クイズに答えるには LINE のアカウントが必要です。</b>LINE がなくても、見本の図鑑（デモ）なら下のボタンから見られます。</li>
+          <li>作り置きのない生きものは、その場でクイズを作るので<b>約35秒</b>かかります（その間は「考え中」と返します）。</li>
+          <li>レア度は抽選しておらず、ガチャ演出はデモ用です。パネルの読み取りで取り違えることがあります。</li>
+        </ul>
+        <div class="btns" style="margin-top:16px"><a class="btn" href="zukan.html?demo=1">LINE なしで図鑑を見る（デモ）</a><a class="btn ghost" href="https://kaiyukan-gacha-hackathon.web.app/zukan.html">自分の図鑑（LIFF）を開く</a></div>
+        <p class="small" style="margin:8px 0 0">デモは見本のユーザーの図鑑を見るだけです（書き込みはできません）。自分の図鑑は LINE ログインが必要です。</p>
+      </div>
+    </div>
+  </section></div>
+
+  <div class="wrap"><section aria-labelledby="h-tech">
+    <div class="sec-head"><span class="tag">TECH</span><h2 id="h-tech">使っている技術と、安全に動かす仕組み</h2></div>
+    <div class="stats">
+      <div class="stat"><div class="v">2.8<small>秒</small></div><div class="k">作り置きからクイズが届くまで（中央値・本番実測）</div></div>
+      <div class="stat"><div class="v">約35<small>秒</small></div><div class="k">その場でクイズを作る場合（中央値 35.6 秒）</div></div>
+    </div>
+    <ul class="tech">
+      <li><b>Cloud Run</b>LINE Bot 本体（Node.js / TypeScript）</li>
+      <li><b>Gemini</b>解説パネルの読み取り（gemini-2.5-flash）</li>
+      <li><b>ADK</b>クイズを選ぶ・駅から探すエージェント</li>
+      <li><b>駅すぱあと MCP</b>84,527 トークンの結果を 310 トークンに絞って渡す</li>
+      <li><b>Firestore</b>図鑑・回答・エージェントの判断の記録</li>
+      <li><b>Firebase Hosting</b>LINE の中で開く図鑑ページ（LIFF）</li>
+    </ul>
+    <div class="box">
+      <h3>エージェントを安全に動かす仕組み</h3>
+      <ul>
+        <li><b>最小権限</b> — エージェントに書き込むツールは渡さない。図鑑登録や記録はコードだけが行う</li>
+        <li><b>出力を縛る</b> — 選べる値はスキーマで絞り、返り値もコードで再検証。種名は海遊館のデータだけから出す</li>
+        <li><b>打ち切りと失敗時の返事</b> — 駅の探索は25秒で打ち切り、失敗してもキャラクターが返事をする</li>
+        <li><b>鍵と入口</b> — 鍵は Secret Manager、LINE の署名を検証。図鑑ページは本人の記録だけ読める Firestore ルール</li>
+      </ul>
+    </div>
+  </section></div>
+
+  <footer>海遊館いきものガチャ図鑑 — 博士と助教授のひみつ研究室<br />Google Cloud Japan AI Hackathon Vol.5 提出作品（チーム「水族館。」）</footer>
+</main>
+
+<script>
+  // LINE（LIFF）から開かれたときだけ、従来の入口処理（旧 index.html と同じ）を動かす。
+  // LIFF URL の後ろにパスが付いていれば（liff.state あり）、liff.init() が二次リダイレクト先へ遷移させる。
+  // パスなしで開かれたときだけ図鑑へ誘導する。
+  if (document.documentElement.classList.contains("is-liff")) {
+    var s = document.createElement("script");
+    s.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
+    s.onload = function () {
+      import("./shared/config.js").then(function (m) {
+        var hasLiffState = new URLSearchParams(location.search).has("liff.state");
+        return liff.init({ liffId: m.LIFF_ID }).then(function () {
+          if (!hasLiffState) location.replace("zukan.html");
+        });
+      }).catch(function (e) {
+        console.error(e);
+        document.getElementById("loading").textContent = "読み込みに失敗しました";
+      });
+    };
+    s.onerror = function () { document.getElementById("loading").textContent = "読み込みに失敗しました"; };
+    document.head.appendChild(s);
+  }
+</script>
+</body>
+</html>

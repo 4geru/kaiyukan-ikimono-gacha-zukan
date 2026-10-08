@@ -1,0 +1,18 @@
+{
+  "name": "guard_interventions",
+  "description": "コードがエージェントに介入した件数（guard）。guard・agent 別",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"guard\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "unit": "1",
+    "labels": [
+      {"key": "guard", "valueType": "STRING"},
+      {"key": "agent", "valueType": "STRING"}
+    ]
+  },
+  "labelExtractors": {
+    "guard": "EXTRACT(jsonPayload.guard)",
+    "agent": "EXTRACT(jsonPayload.agent)"
+  }
+}

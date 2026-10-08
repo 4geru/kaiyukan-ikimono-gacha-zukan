@@ -1,0 +1,11 @@
+.git
+.gitignore
+.gcloudignore
+.DS_Store
+.env
+.env.*
+env.local
+node_modules/
+dist/
+README.md
+data/quiz-pool/input/

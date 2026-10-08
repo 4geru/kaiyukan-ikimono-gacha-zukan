@@ -1,0 +1,205 @@
+{
+  "type": "carousel",
+  "contents": [
+    {
+      "type": "bubble",
+      "hero": {
+        "type": "image",
+        "url": "https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-1-panel.jpg",
+        "size": "full",
+        "aspectRatio": "3:2",
+        "aspectMode": "cover"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "md",
+        "paddingAll": "lg",
+        "contents": [
+          {
+            "type": "text",
+            "text": "STEP 1",
+            "size": "sm",
+            "weight": "bold",
+            "color": "#1a8f8f"
+          },
+          {
+            "type": "text",
+            "text": "パネルを撮って送る",
+            "size": "xl",
+            "weight": "bold",
+            "wrap": true
+          },
+          {
+            "type": "text",
+            "text": "水槽の横の解説パネルを撮影して送ってほしいっす！",
+            "size": "md",
+            "wrap": true,
+            "color": "#444444"
+          }
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "hero": {
+        "type": "image",
+        "url": "https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-2-zukan.jpg",
+        "size": "full",
+        "aspectRatio": "3:2",
+        "aspectMode": "cover"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "md",
+        "paddingAll": "lg",
+        "contents": [
+          {
+            "type": "text",
+            "text": "STEP 2",
+            "size": "sm",
+            "weight": "bold",
+            "color": "#1a8f8f"
+          },
+          {
+            "type": "text",
+            "text": "図鑑に登録！",
+            "size": "xl",
+            "weight": "bold",
+            "wrap": true
+          },
+          {
+            "type": "text",
+            "text": "生きものを見つけたらガチャでカードをゲット。仲間の生きものもたどれるっす！",
+            "size": "md",
+            "wrap": true,
+            "color": "#444444"
+          }
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "hero": {
+        "type": "image",
+        "url": "https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-3-quiz.jpg",
+        "size": "full",
+        "aspectRatio": "3:2",
+        "aspectMode": "cover"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "md",
+        "paddingAll": "lg",
+        "contents": [
+          {
+            "type": "text",
+            "text": "STEP 3",
+            "size": "sm",
+            "weight": "bold",
+            "color": "#1a8f8f"
+          },
+          {
+            "type": "text",
+            "text": "クイズに挑戦",
+            "size": "xl",
+            "weight": "bold",
+            "wrap": true
+          },
+          {
+            "type": "text",
+            "text": "レベルに合わせた問題を出すっす。困ったらヒントもあるっす！",
+            "size": "md",
+            "wrap": true,
+            "color": "#444444"
+          }
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "hero": {
+        "type": "image",
+        "url": "https://storage.googleapis.com/kaiyukan-gacha-hackathon-public-assets/welcome/welcome-4-station.jpg",
+        "size": "full",
+        "aspectRatio": "3:2",
+        "aspectMode": "cover"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "md",
+        "paddingAll": "lg",
+        "contents": [
+          {
+            "type": "text",
+            "text": "STEP 4",
+            "size": "sm",
+            "weight": "bold",
+            "color": "#1a8f8f"
+          },
+          {
+            "type": "text",
+            "text": "水族館をさがす",
+            "size": "xl",
+            "weight": "bold",
+            "wrap": true
+          },
+          {
+            "type": "text",
+            "text": "「新大阪駅から1時間で行ける水族館は？」と聞いてみるっす！",
+            "size": "md",
+            "wrap": true,
+            "color": "#444444"
+          }
+        ]
+      }
+    },
+    {
+      "type": "bubble",
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "lg",
+        "paddingAll": "xl",
+        "justifyContent": "center",
+        "contents": [
+          {
+            "type": "text",
+            "text": "さあ、はじめよう！",
+            "size": "xl",
+            "weight": "bold",
+            "wrap": true
+          },
+          {
+            "type": "text",
+            "text": "まずは水槽の横の解説パネルを撮って送ってみるっす！",
+            "size": "md",
+            "wrap": true,
+            "color": "#444444"
+          }
+        ]
+      },
+      "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "spacing": "sm",
+        "contents": [
+          {
+            "type": "button",
+            "style": "primary",
+            "height": "md",
+            "color": "#1a8f8f",
+            "action": {
+              "type": "uri",
+              "label": "図鑑を見る",
+              "uri": "https://kaiyukan-gacha-hackathon.web.app/zukan.html"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

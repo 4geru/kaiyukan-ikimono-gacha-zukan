@@ -1,0 +1,21 @@
+{
+  "displayName": "ERROR ログが 15分で10件超",
+  "documentation": {
+    "content": "severity>=ERROR のログが 15 分で 10 件を超えた。Logs Explorer で severity>=ERROR を見る（Error Reporting にも出る）。",
+    "mimeType": "text/markdown"
+  },
+  "combiner": "OR",
+  "conditions": [
+    {
+      "displayName": "ERROR ログ > 10 件 / 15分",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/error_logs\" AND resource.type=\"cloud_run_revision\"",
+        "aggregations": [{"alignmentPeriod": "900s", "perSeriesAligner": "ALIGN_SUM", "crossSeriesReducer": "REDUCE_SUM"}],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 10,
+        "duration": "0s",
+        "trigger": {"count": 1}
+      }
+    }
+  ]
+}

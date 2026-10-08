@@ -1,0 +1,18 @@
+{
+  "name": "agent_runs",
+  "description": "エージェント1回の終了（agent_run）の件数。agent・outcome 別",
+  "filter": "resource.type=\"cloud_run_revision\" AND jsonPayload.event=\"agent_run\"",
+  "metricDescriptor": {
+    "metricKind": "DELTA",
+    "valueType": "INT64",
+    "unit": "1",
+    "labels": [
+      {"key": "agent", "valueType": "STRING"},
+      {"key": "outcome", "valueType": "STRING"}
+    ]
+  },
+  "labelExtractors": {
+    "agent": "EXTRACT(jsonPayload.agent)",
+    "outcome": "EXTRACT(jsonPayload.outcome)"
+  }
+}

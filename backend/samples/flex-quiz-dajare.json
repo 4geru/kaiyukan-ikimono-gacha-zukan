@@ -1,0 +1,185 @@
+{
+  "type": "flex",
+  "altText": "ジンベエ名誉教授が、ジンベエザメについて一言！さて、何と言ったでしょう？",
+  "contents": {
+    "type": "bubble",
+    "header": {
+      "type": "box",
+      "layout": "vertical",
+      "backgroundColor": "#F5A623",
+      "paddingAll": "md",
+      "contents": [
+        {
+          "type": "text",
+          "text": "🐳 ジンベエ名誉教授",
+          "color": "#FFFFFF",
+          "weight": "bold",
+          "size": "sm"
+        }
+      ]
+    },
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "spacing": "md",
+      "contents": [
+        {
+          "type": "text",
+          "text": "「ジンベエ名誉教授が、ジンベエザメについて一言！さて、何と言ったでしょう？」",
+          "weight": "bold",
+          "size": "md",
+          "wrap": true,
+          "style": "italic"
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "spacing": "md",
+          "alignItems": "center",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "vertical",
+              "width": "24px",
+              "height": "24px",
+              "cornerRadius": "12px",
+              "backgroundColor": "#FF6B6B",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "A",
+                  "color": "#FFFFFF",
+                  "weight": "bold",
+                  "size": "xs",
+                  "align": "center"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "「ジンベエザメって、泳ぎが『ジンベエ』じゃなくて、『スイスイ』だね！」",
+              "size": "sm",
+              "wrap": true,
+              "flex": 1
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "spacing": "md",
+          "alignItems": "center",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "vertical",
+              "width": "24px",
+              "height": "24px",
+              "cornerRadius": "12px",
+              "backgroundColor": "#4ECDC4",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "B",
+                  "color": "#FFFFFF",
+                  "weight": "bold",
+                  "size": "xs",
+                  "align": "center"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "「ジンベエザメのヒレは、まるで『甚平』みたいだね！」",
+              "size": "sm",
+              "wrap": true,
+              "flex": 1
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "spacing": "md",
+          "alignItems": "center",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "vertical",
+              "width": "24px",
+              "height": "24px",
+              "cornerRadius": "12px",
+              "backgroundColor": "#FFD166",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "C",
+                  "color": "#FFFFFF",
+                  "weight": "bold",
+                  "size": "xs",
+                  "align": "center"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "「このサメ、体は大きいけど、性格は『ジン』と優しいんだよ！」",
+              "size": "sm",
+              "wrap": true,
+              "flex": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "quickReply": {
+    "items": [
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "A",
+          "data": "action=answerQuiz&animalId=48&choiceIndex=0",
+          "displayText": "A. 「ジンベエザメって、泳ぎが『ジンベエ』じゃなくて、『スイスイ』だね！」"
+        }
+      },
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "B",
+          "data": "action=answerQuiz&animalId=48&choiceIndex=1",
+          "displayText": "B. 「ジンベエザメのヒレは、まるで『甚平』みたいだね！」"
+        }
+      },
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "C",
+          "data": "action=answerQuiz&animalId=48&choiceIndex=2",
+          "displayText": "C. 「このサメ、体は大きいけど、性格は『ジン』と優しいんだよ！」"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "displayName": "エージェント失敗率が高い（15分で30%超・5件以上）",
+  "documentation": {
+    "content": "agent_run の outcome が ok 以外の割合が 15 分で 30% を超え、かつ 5 件以上。Logs Explorer で jsonPayload.event=\"agent_run\" AND jsonPayload.outcome!=\"ok\" を見る。止めたいときは Firestore config/runtime の disabledAgents に station / quiz を入れる。",
+    "mimeType": "text/markdown"
+  },
+  "combiner": "AND",
+  "conditions": [
+    {
+      "displayName": "失敗の割合 > 30%",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/agent_failures\" AND resource.type=\"cloud_run_revision\"",
+        "denominatorFilter": "metric.type=\"logging.googleapis.com/user/agent_runs\" AND resource.type=\"cloud_run_revision\"",
+        "aggregations": [{"alignmentPeriod": "900s", "perSeriesAligner": "ALIGN_SUM", "crossSeriesReducer": "REDUCE_SUM"}],
+        "denominatorAggregations": [{"alignmentPeriod": "900s", "perSeriesAligner": "ALIGN_SUM", "crossSeriesReducer": "REDUCE_SUM"}],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0.3,
+        "duration": "0s",
+        "trigger": {"count": 1}
+      }
+    },
+    {
+      "displayName": "失敗が 5 件以上",
+      "conditionThreshold": {
+        "filter": "metric.type=\"logging.googleapis.com/user/agent_failures\" AND resource.type=\"cloud_run_revision\"",
+        "aggregations": [{"alignmentPeriod": "900s", "perSeriesAligner": "ALIGN_SUM", "crossSeriesReducer": "REDUCE_SUM"}],
+        "comparison": "COMPARISON_GE",
+        "thresholdValue": 5,
+        "duration": "0s",
+        "trigger": {"count": 1}
+      }
+    }
+  ]
+}

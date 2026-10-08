@@ -1,0 +1,31 @@
+◇ injected env (0) from .env
+{"severity":"INFO","message":"ツール searchStations を呼びました","event":"tool_call","app":"kaiyukan-gacha-bot","version":"local","runId":"none","agent":"none","tool":"searchStations","args":{},"ok":true,"resultCount":2,"latencyMs":721}
+{"severity":"INFO","message":"ツール findAquariumsByTravelTime を呼びました","event":"tool_call","app":"kaiyukan-gacha-bot","version":"local","runId":"none","agent":"none","tool":"findAquariumsByTravelTime","args":{"minutes":60},"ok":true,"resultCount":1,"latencyMs":364}
+
+## 彦根駅から60分（起点: 彦根 / 到達駅 94件 → 水族館 1件: 滋賀県立琵琶湖博物館）
+| 対象 | 文字数 | バイト | トークン |
+| --- | ---: | ---: | ---: |
+| get_stations（生） | 998 | 1036 | 439 |
+| searchStations（返り値） | 193 | 215 | 93 |
+| search_ranges（生） | 30796 | 32030 | 10480 |
+| findAquariumsByTravelTime（返り値） | 267 | 375 | 119 |
+{"severity":"INFO","message":"ツール searchStations を呼びました","event":"tool_call","app":"kaiyukan-gacha-bot","version":"local","runId":"none","agent":"none","tool":"searchStations","args":{},"ok":true,"resultCount":14,"latencyMs":77}
+{"severity":"INFO","message":"ツール findAquariumsByTravelTime を呼びました","event":"tool_call","app":"kaiyukan-gacha-bot","version":"local","runId":"none","agent":"none","tool":"findAquariumsByTravelTime","args":{"minutes":60},"ok":true,"resultCount":3,"latencyMs":212}
+
+## 大阪駅から60分（起点: 大阪 / 到達駅 770件 → 水族館 3件: 姫路市立水族館、滋賀県立琵琶湖博物館、京都水族館）
+| 対象 | 文字数 | バイト | トークン |
+| --- | ---: | ---: | ---: |
+| get_stations（生） | 6251 | 6739 | 2699 |
+| searchStations（返り値） | 1330 | 1574 | 649 |
+| search_ranges（生） | 250004 | 260554 | 84527 |
+| findAquariumsByTravelTime（返り値） | 699 | 981 | 310 |
+{"severity":"INFO","message":"ツール searchStations を呼びました","event":"tool_call","app":"kaiyukan-gacha-bot","version":"local","runId":"none","agent":"none","tool":"searchStations","args":{},"ok":true,"resultCount":6,"latencyMs":59}
+{"severity":"INFO","message":"ツール findAquariumsByTravelTime を呼びました","event":"tool_call","app":"kaiyukan-gacha-bot","version":"local","runId":"none","agent":"none","tool":"findAquariumsByTravelTime","args":{"minutes":30},"ok":true,"resultCount":0,"latencyMs":54}
+
+## 神戸駅から30分（起点: 神戸(愛知県) / 到達駅 8件 → 水族館 0件: ）
+| 対象 | 文字数 | バイト | トークン |
+| --- | ---: | ---: | ---: |
+| get_stations（生） | 2756 | 2932 | 1191 |
+| searchStations（返り値） | 591 | 703 | 294 |
+| search_ranges（生） | 2940 | 3058 | 1015 |
+| findAquariumsByTravelTime（返り値） | 51 | 51 | 18 |

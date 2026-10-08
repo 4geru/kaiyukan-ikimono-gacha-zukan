@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>エージェンティック化 提案コンペ</title>
+<style>
+  :root {
+    --bg: #f4f8f8; --surface: #ffffff; --ink: #14303a; --muted: #5b7380; --line: #d6e3e6;
+    --accent: #1f8a8a; --accent-soft: #e2f3f2; --warn: #c2551f; --warn-soft: #fdeee6;
+    --good: #2e7d4f; --good-soft: #e5f4ea; --p1: #4a6fd1; --p2: #8b5bc7; --p3: #1f8a8a;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1a1e; --surface: #16252b; --ink: #e3eef0; --muted: #9db3bb; --line: #2a3f47;
+      --accent: #4fc2c0; --accent-soft: #1b3436; --warn: #f0905e; --warn-soft: #3a261d;
+      --good: #6cc790; --good-soft: #1d3326; --p1: #8aa6f0; --p2: #b996e8; --p3: #4fc2c0;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1a1e; --surface: #16252b; --ink: #e3eef0; --muted: #9db3bb; --line: #2a3f47;
+    --accent: #4fc2c0; --accent-soft: #1b3436; --warn: #f0905e; --warn-soft: #3a261d;
+    --good: #6cc790; --good-soft: #1d3326; --p1: #8aa6f0; --p2: #b996e8; --p3: #4fc2c0;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.75 "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 20px 80px; }
+  header .kicker { color: var(--accent); font-weight: 700; letter-spacing: .08em; font-size: 13px; }
+  h1 { font-size: 30px; line-height: 1.35; margin: 6px 0 10px; }
+  .lead { color: var(--muted); margin: 0 0 8px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  h2 { font-size: 21px; margin: 48px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 22px; }
+  .verdict { border-left: 6px solid var(--accent); background: var(--accent-soft); }
+  .verdict p { margin: 4px 0; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 860px) { .grid3 { grid-template-columns: 1fr; } }
+  .prop { border-top: 6px solid var(--c); display: flex; flex-direction: column; gap: 8px; }
+  .prop .num { color: var(--c); font-weight: 800; font-size: 13px; letter-spacing: .06em; }
+  .prop .concept { font-weight: 700; }
+  .prop ul { margin: 4px 0 0; padding-left: 1.2em; }
+  .prop li { margin: 2px 0; }
+  .pill { display: inline-block; font-size: 12px; padding: 1px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 700; margin-right: 4px; }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.good { background: var(--good-soft); color: var(--good); }
+  .tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  thead th { font-size: 13px; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+  th.p1 { color: var(--p1); } th.p2 { color: var(--p2); } th.p3 { color: var(--p3); }
+  tbody th { width: 170px; font-weight: 700; }
+  tr:last-child td, tr:last-child th { border-bottom: 0; }
+  td.best { background: var(--good-soft); }
+  .score { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 18px; }
+  .bar { height: 8px; border-radius: 4px; background: var(--line); margin-top: 6px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--c); }
+  .core { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .core .card { padding: 14px 16px; }
+  .core b { display: block; color: var(--accent); }
+  .facts li { margin: 6px 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; }
+  .plan { display: grid; grid-template-columns: 110px 1fr; gap: 0; }
+  .plan div { padding: 8px 12px; border-bottom: 1px solid var(--line); }
+  .plan .d { font-weight: 700; color: var(--accent); }
+  .note { color: var(--muted); font-size: 13px; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">海遊館いきものガチャ図鑑 ／ Google Cloud Japan AI Hackathon Vol.5</div>
+    <h1>もっとエージェンティックにする提案コンペ — 3案の比較</h1>
+    <p class="lead">3体のエージェント（Opus）に同じお題を独立に出し、提出締切（2026-10-15 23:59）までに作れる範囲で、審査基準に照らした改善案を書かせた。</p>
+    <p class="meta">2026-10-08 作成 ／ 提案書の原文: scratchpad/compete/proposal-1〜3.md ／ お題: compete/brief.md</p>
+  </header>
+
+  <h2>結論</h2>
+  <div class="card verdict">
+    <p><strong>推奨: 3番をベースに、2番の「停止スイッチ」「評価の指標」「Webhook の二重処理防止」を足す。</strong></p>
+    <p>3番はクイズのエージェントに触らない（「全部作ってから選ぶ」方式を残すという決定と矛盾しない）。<code>/demo</code> で提出要件の「ソーシャルログインを避ける」に答え、既存のロック表示（<code>card.html</code>）がようやく動く。合計 約6人日で、締切までの余裕はほとんどない。</p>
+  </div>
+
+  <h2>3案に共通するコア</h2>
+  <p class="note">3体とも独立に同じ骨格へ収束した。自己採点も全員「自律性 5 → 8」。</p>
+  <div class="core">
+    <div class="card"><b>次の一手エージェント</b>ユーザーの図鑑・正誤・解放状況を読み、次の行動を ADK エージェントが選ぶ</div>
+    <div class="card"><b>行動は許可リスト</b>enum で限定し、返り値もコードで再検証。範囲外は安全側へ</div>
+    <div class="card"><b>書き込みはコードだけ</b>エージェントのツールは読み取り専用。タイムアウト時は今の固定ルールへ戻す</div>
+    <div class="card"><b>判断を記録して見せる</b>入力の要約・行動・理由・介入を Firestore と Cloud Logging に残す</div>
+    <div class="card"><b>ガードレール</b>ユーザー文の分離（インジェクション対策）、入力長と呼び出し回数の上限</div>
+  </div>
+
+  <h2>3つの提案</h2>
+  <div class="grid3">
+    <div class="card prop" style="--c: var(--p1)">
+      <div class="num">PROPOSAL 1</div>
+      <h3>次の一手を決める研究室</h3>
+      <div class="concept">判断の主体をエージェントへ、判断の記録を審査員へ</div>
+      <div><span class="pill">行動 7種</span><span class="pill warn">クイズ置き換え</span></div>
+      <ul>
+        <li>易しい／難しい出題・ヒント・知識の解放・水槽へ誘導・雑談・待つ</li>
+        <li>クイズを「計画 → 1問だけ作る → <strong>自己検証</strong>」に置き換え（25〜40秒 → 約10秒）</li>
+        <li>判断ログを <code>agentDecisions</code> に記録、ログインなしの <code>agent-log.html</code></li>
+        <li>「なぜこれ？」ボタンでジンベエが理由を説明</li>
+        <li>インジェクション対策・冪等性・回数上限</li>
+      </ul>
+      <div class="note">規模: 2.5＋1.5＋1.5＋1＋(0.5) 人日</div>
+    </div>
+    <div class="card prop" style="--c: var(--p2)">
+      <div class="num">PROPOSAL 2</div>
+      <h3>次の一手を決める学芸員</h3>
+      <div class="concept">判断の証跡が見える図鑑</div>
+      <div><span class="pill">行動 4種＋難易度</span><span class="pill warn">クイズ置き換え</span></div>
+      <ul>
+        <li>出題・ヒント付き出し直し・未登録種への誘導・知識の解放</li>
+        <li>カテゴリと難易度を先に決めて1問だけ作る（約10秒）</li>
+        <li><code>agentRuns</code> と LIFF の「博士がこの問題を選んだ理由」</li>
+        <li><strong>停止スイッチ <code>AGENT_MODE=off/shadow/on</code></strong>（記録だけ取る段階導入）</li>
+        <li><strong>評価ハーネス</strong>: 20種×5パターンで行動分布・期待一致率・介入率・p95</li>
+      </ul>
+      <div class="note">規模: 2.5＋1.5＋1＋0.5 人日（計 約5.5）</div>
+    </div>
+    <div class="card prop" style="--c: var(--p3)">
+      <div class="num">PROPOSAL 3</div>
+      <h3>研究室の次の一手</h3>
+      <div class="concept">学習者の状態を読む案内エージェントと「観察ノート」</div>
+      <div><span class="pill">行動 4種</span><span class="pill good">クイズは触らない</span></div>
+      <ul>
+        <li>基礎の事実を話して解放・出題を勧める・未発見の仲間へ誘導・雑談</li>
+        <li><strong>「基礎を3つ話すまで出題しない」をコードで強制</strong>（当初の要件どおり）</li>
+        <li>雑談に「いま見ている生きもの」の文脈を渡す</li>
+        <li>観察ノート、<code>quizHistory</code> に選んだ理由を残す</li>
+        <li><strong>パスコードで入れる <code>/demo</code></strong>（体験と観察ノートを並べて表示）、レッドチーム10ケース</li>
+      </ul>
+      <div class="note">規模: 2.0＋1.0＋1.0＋1.5 人日（計 約5.5）</div>
+    </div>
+  </div>
+
+  <h2>観点ごとの比較</h2>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th></th><th class="p1">1番</th><th class="p2">2番</th><th class="p3">3番</th></tr></thead>
+      <tbody>
+        <tr><th>エージェントが選べる行動</th><td>7種（易しい出題／難しい出題／ヒント／解放／誘導／雑談／待つ）</td><td>4種＋難易度（出題／ヒント付き出し直し／誘導／解放）</td><td>4種（事実を話して解放／出題を勧める／誘導／雑談）</td></tr>
+        <tr><th>クイズのエージェント</th><td>置き換える（計画 → 1問 → 自己検証）</td><td>置き換える（先に決めて1問）</td><td class="best">今のまま残す（記録だけ追加）</td></tr>
+        <tr><th>管理・制御の目玉</th><td>自己検証で作り直しは最大1回</td><td class="best">停止スイッチ <code>AGENT_MODE</code>（off / shadow / on）</td><td>出題の解禁条件をコードで判定</td></tr>
+        <tr><th>可観測性</th><td>判断ログのログインなしページ</td><td class="best">LIFF に理由表示＋評価で期待一致率・介入率・p95</td><td>観察ノート＋<code>quizHistory</code> に理由を保存</td></tr>
+        <tr><th>セキュリティ</th><td>区切り・冪等性・回数上限・テスト10件</td><td>入力分離・出力検証・予算・冪等性</td><td>区切り・入力長・1日の上限・レッドチーム10件（「渡さない設計」）</td></tr>
+        <tr><th>審査の導線（ソーシャルログイン）</th><td>判断ログだけログインなし</td><td>QRと動画のみ（未解決）</td><td class="best">パスコードで入れる <code>/demo</code></td></tr>
+        <tr><th>学びの積み上がり</th><td>難易度の適応＋解放</td><td>難易度の適応＋解放</td><td class="best">解放で既存の「？？？？」表示が動く＋雑談の文脈化</td></tr>
+        <tr><th>速さ</th><td class="best">クイズ 25〜40秒 → 約10秒</td><td class="best">同左</td><td>クイズは遅いまま（案内は <code>thinkingBudget: 0</code>＋8秒で打ち切り）</td></tr>
+        <tr><th>締切までの実現性</th><td>△ クイズの作り直しが重い</td><td>△ 同左</td><td class="best">○ 動いているものに触らない</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>採点（実装後の見込み × 作り切れるか）</h2>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>審査基準</th><th class="p1">1番</th><th class="p2">2番</th><th class="p3">3番</th></tr></thead>
+      <tbody>
+        <tr><th>1. 課題の新規性と解決策の有効性</th>
+          <td><span class="score">7</span><div class="bar" style="--c:var(--p1)"><span style="width:70%"></span></div></td>
+          <td><span class="score">7</span><div class="bar" style="--c:var(--p2)"><span style="width:70%"></span></div></td>
+          <td class="best"><span class="score">8</span><div class="bar" style="--c:var(--p3)"><span style="width:80%"></span></div></td></tr>
+        <tr><th>2. 自律性・エージェントらしさ</th>
+          <td><span class="score">8</span><div class="bar" style="--c:var(--p1)"><span style="width:80%"></span></div></td>
+          <td class="best"><span class="score">8.5</span><div class="bar" style="--c:var(--p2)"><span style="width:85%"></span></div></td>
+          <td><span class="score">8</span><div class="bar" style="--c:var(--p3)"><span style="width:80%"></span></div></td></tr>
+        <tr><th>3. 実装品質と拡張性</th>
+          <td><span class="score">7</span><div class="bar" style="--c:var(--p1)"><span style="width:70%"></span></div></td>
+          <td class="best"><span class="score">7.5</span><div class="bar" style="--c:var(--p2)"><span style="width:75%"></span></div></td>
+          <td class="best"><span class="score">7.5</span><div class="bar" style="--c:var(--p3)"><span style="width:75%"></span></div></td></tr>
+        <tr><th>締切までの実現性</th><td>△</td><td>△</td><td class="best">○</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">各提案の自己採点はいずれも 新規性 6→7 ／ 自律性 5→8 ／ 実装品質 6→7。上の表は PM（メインセッション）の採点。</p>
+
+  <h2>推奨案の中身（3番 ＋ 2番の良いところ）</h2>
+  <div class="card">
+    <ul>
+      <li><strong>3番から</strong>: 案内エージェント（行動4種・読み取り専用ツール3つ・出題の解禁をコードで判定）、観察ノート、ガードレールとレッドチーム、<code>/demo</code></li>
+      <li><strong>2番から</strong>: 停止スイッチ <code>AGENT_MODE=off/shadow/on</code>、評価の指標（期待一致率・介入率・p95）、Webhook の二重処理防止（<code>webhookEventId</code>）— 追加は合計 約0.5人日</li>
+      <li><strong>採らないもの</strong>: クイズの置き換え（1番・2番）。今の方式を残すと決めたため。速さの課題は記事に正直に書く</li>
+    </ul>
+    <div class="plan" style="margin-top:12px">
+      <div class="d">10/9（金）</div><div>案内エージェントとツール3つ、行動 enum とコード側の除外規則、<code>AGENT_MODE</code></div>
+      <div class="d">10/10（土）</div><div><code>server.ts</code> に組み込み、<code>knowledgeUnlocked</code> の書き込み、雑談の文脈化、実機確認</div>
+      <div class="d">10/11（日）</div><div>観察ノート、<code>quizHistory</code> への理由の引き継ぎ、rules 更新、二重処理防止</div>
+      <div class="d">10/12（月）</div><div>ガードレール（入力上限・分離・呼び出し上限）、レッドチーム10ケース、評価スクリプト</div>
+      <div class="d">10/13（火）</div><div><code>/demo</code> と観察ノート表示（遅れたら読み取り専用ページに縮小）</div>
+      <div class="d">10/14（水）</div><div>紹介動画の該当シーン（S6前後）の撮り直し、記事・アーキテクチャ図の更新</div>
+      <div class="d">10/15（木）</div><div>予備日。外部から <code>/demo</code> に入れるか、push の残量を確認して提出</div>
+    </div>
+  </div>
+
+  <h2>コードで確認した、3案共通の根拠</h2>
+  <div class="card">
+    <ul class="facts">
+      <li>回答時に <code>tx.delete(pendingRef)</code> し、<code>quizHistory</code> には category・question・choices・correctIndex・isCorrect しか保存しない → <strong>選んだ理由（selectionReason）が回答と同時に消える</strong>（<code>backend/src/server.ts</code> 404〜437行付近）</li>
+      <li><code>frontend/card.html</code> の <code>renderKnowledge()</code> はロック表示「？？？？」を描くが、<code>knowledgeUnlocked</code> はどこからも書き込まれない → <strong>画面だけあって中身が埋まらない</strong></li>
+      <li><code>characterChat.ts</code> は <code>contents: userMessage</code> だけを渡す → <strong>雑談は見ている生きものを知らない</strong></li>
+      <li>次に何をするかは <code>handlePostback</code> の action 分岐と固定のクイックリプライで決まる → <strong>フロー制御に LLM が関与していない</strong></li>
+    </ul>
+  </div>
+
+  <h2>リスクと注意</h2>
+  <div class="card">
+    <ul>
+      <li>合計 約6人日で、締切までの余裕はほとんどない。<code>/demo</code> は遅れたら縮小版に切り替える判断点を 10/13 に置く</li>
+      <li>機能を足すと、完成済みの紹介動画（176秒）の一部を撮り直す必要がある</li>
+      <li>案内エージェントの結果は push で送るため、LINE の送信通数の上限を提出前に確認する</li>
+      <li>エージェントの判断の質は、評価スクリプトで事前に分布を確認しないと、デモで同じ行動ばかり出るおそれがある</li>
+    </ul>
+  </div>
+
+  <footer>作成: Claude Code（PM セッション）。提案書は3体の Opus エージェントが独立に作成し、相互に参照していない。</footer>
+</div>
+</body>
+</html>

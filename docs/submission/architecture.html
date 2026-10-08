@@ -1,0 +1,56 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>リクエストの旅</title>
+<style>
+*{box-sizing:border-box;margin:0}
+body{width:1920px;height:1080px;background:#f4f8fb;font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",sans-serif;color:#1c2b36;padding:40px 56px;position:relative;overflow:hidden}
+h1{font-size:46px;font-weight:900}
+.sub{font-size:24px;color:#4a5b68;margin-top:6px}
+.flow{display:flex;align-items:stretch;gap:0;margin-top:24px;height:720px}
+.col{display:flex;flex-direction:column;width:290px}
+.col.w{width:440px}
+.lab{align-self:center;background:#1c2b36;color:#fff;font-weight:900;font-size:28px;padding:6px 22px;border-radius:99px;margin-bottom:12px;white-space:nowrap}
+.nodes{flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.n{border-radius:18px;padding:10px 16px;border:4px solid;background:#fff}
+.n b{display:block;font-size:28px;font-weight:900}
+.n span{display:block;font-size:20px;margin-top:2px;line-height:1.35}
+.ai{border-color:#e8590c;background:#fff1e6}
+.code{border-color:#2f9e44;background:#e9f7ec}
+.base{border-color:#4a6fa5;background:#eaf0f9}
+.ar{width:50px;display:flex;align-items:center;justify-content:center;font-size:54px;color:#1c2b36;font-weight:900;padding-top:44px}
+.legend{position:absolute;left:56px;right:56px;bottom:40px;display:flex;gap:40px;align-items:center;font-size:24px;background:#fff;border-radius:18px;padding:18px 28px;border:2px solid #cfd9e1}
+.legend i{display:inline-block;width:34px;height:34px;border-radius:9px;border:4px solid;vertical-align:middle;margin-right:10px}
+.legend div{white-space:nowrap}
+</style></head><body>
+<h1>リクエストの旅</h1>
+<div class="sub">解説パネルを撮って送ってから、キャラクターの返事と図鑑が返るまで</div>
+<div class="flow">
+ <div class="col"><div class="lab">1. 撮る・聞く</div><div class="nodes">
+  <div class="n base"><b>LINE</b><span>解説パネルの写真<br>メッセージ</span></div></div></div>
+ <div class="ar">▶</div>
+ <div class="col"><div class="lab">2. 受け取る</div><div class="nodes">
+  <div class="n code"><b>Cloud Run</b><span>Bot の本体<br>署名を検証し、雑談か駅の質問かを振り分ける</span></div></div></div>
+ <div class="ar">▶</div>
+ <div class="col w"><div class="lab">3. 考える</div><div class="nodes">
+  <div class="n ai"><b>Gemini</b><span>写真から魚の名前を読み取る</span></div>
+  <div class="n code"><b>243種と照合</b><span>全件をスコア付け<br>候補はユーザーが選ぶ</span></div>
+  <div class="n ai"><b>ADK エージェント</b><span>クイズの1問を選ぶ・水族館を探す</span></div>
+  <div class="n base"><b>駅すぱあと MCP</b><span>行ける駅を調べる<br>コードで 84,527 → 310 トークンへ</span></div>
+  <div class="n code"><b>コードで縛る</b><span>選択肢・ツール引数<br>タイムアウト・失敗時の返事</span></div>
+ </div></div>
+ <div class="ar">▶</div>
+ <div class="col w"><div class="lab">4. しまう</div><div class="nodes">
+  <div class="n base"><b>Firestore</b><span>243種のデータ・図鑑の記録<br>検討した全候補と選んだ理由</span></div>
+  <div class="n base"><b>Cloud Storage</b><span>写真・イラスト・ガチャ演出ページ</span></div>
+  <div class="n base"><b>Secret Manager</b><span>API の鍵</span></div>
+ </div></div>
+ <div class="ar">▶</div>
+ <div class="col"><div class="lab">5. 返す</div><div class="nodes">
+  <div class="n base"><b>LINE</b><span>2人のキャラの返事<br>カード・ガチャ演出</span></div>
+  <div class="n base"><b>LIFF の図鑑</b><span>Firebase Hosting<br>本人の記録だけ読める</span></div>
+ </div></div>
+</div>
+<div class="legend">
+ <div><i style="border-color:#e8590c;background:#fff1e6"></i>AI が判断する所</div>
+ <div><i style="border-color:#2f9e44;background:#e9f7ec"></i>コードで縛る・決める所</div>
+ <div><i style="border-color:#4a6fa5;background:#eaf0f9"></i>入出口・外部サービス・保存先</div>
+</div>
+</body></html>

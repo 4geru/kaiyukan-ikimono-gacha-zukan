@@ -1,0 +1,63 @@
+{
+  "richMenuId": "richmenu-7e105bb331c5eca0764bdcb9e5a4faae",
+  "name": "kaiyukan-gacha-main-menu",
+  "size": {
+    "width": 2500,
+    "height": 1686
+  },
+  "chatBarText": "メニュー",
+  "selected": true,
+  "areas": [
+    {
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1250,
+        "height": 843
+      },
+      "action": {
+        "label": "写真を撮る",
+        "type": "camera"
+      }
+    },
+    {
+      "bounds": {
+        "x": 1250,
+        "y": 0,
+        "width": 1250,
+        "height": 843
+      },
+      "action": {
+        "label": "近くの水族館を探す",
+        "type": "location"
+      }
+    },
+    {
+      "bounds": {
+        "x": 0,
+        "y": 843,
+        "width": 1250,
+        "height": 843
+      },
+      "action": {
+        "label": "図鑑を見る",
+        "type": "uri",
+        "uri": "https://miniapp.line.me/2011666396-dgz7LpbK/zukan.html"
+      }
+    },
+    {
+      "bounds": {
+        "x": 1250,
+        "y": 843,
+        "width": 1250,
+        "height": 843
+      },
+      "action": {
+        "label": "水槽から探す",
+        "type": "postback",
+        "data": "action=browseExhibitions",
+        "displayText": "すいそうから探す"
+      }
+    }
+  ]
+}

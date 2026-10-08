@@ -1,0 +1,31 @@
+{
+  "name": "hackathon-vol5-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "build": "tsc",
+    "start:prod": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "try:quiz-agent": "tsx scripts/try-quiz-agent.ts",
+    "seed:animal-master": "tsx scripts/seed-animal-master.ts"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^8.2.0",
+    "@google/adk": "^2.1.0",
+    "@google/genai": "^2.23.0",
+    "@line/bot-sdk": "^11.2.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "dotenv": "^18.0.0",
+    "express": "^5.2.1",
+    "firebase-admin": "^14.4.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.1",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,21 @@
+# 実装タスク: 駅・地名を起点にした水族館調査エージェント（Issue #790）
+
+- [x] 1. `backend/src/flexMessages.ts` に駅起点水族館用 Flex メッセージビルダーを追加
+  - S1（直線距離）・S2（電車所要時間・乗換回数）に対応した `buildStationAquariumFlexMessage` を実装
+  - #789 既存の `buildAquariumFlexMessage` は変更しない
+- [x] 2. `backend/src/stationAquariumAgent.ts` の作成（ADK + 駅すぱあと MCP + FunctionTool）
+  - 起点駅特定ツール（`ekispert_api_get_stations` ラッパー / MCPToolset 連携）
+  - S1: 駅座標とマスタ15館の Haversine 直線距離によるトップ3計算 FunctionTool
+  - S2: 指定時間（10〜200分クランプ）による `search_ranges` 呼び出しとマスタ15館 `stationCode` 突き合わせ・所要時間降順ソート FunctionTool
+  - ADK Agent（`gemini-2.5-flash`）、指示プロンプト、Zod 出力スキーマの定義
+  - セッション管理（`try-finally` で `toolset.close()`）、タイムアウト（25秒）ハンドリング
+- [x] 3. 意図判定（Intent Classifier）の実装
+  - 自由文が「駅・地名を起点にした水族館の質問」かどうかを判定する軽量 Gemini Flash 呼び出し
+- [x] 4. `backend/src/server.ts` の `text` 受信部への統合
+  - 意図判定の実行
+  - 該当時: 先に `replyToken` でカワウソ「調べ中っす！」を即時返信
+  - バックグラウンドで非同期にエージェントを実行し、完了後に `client.pushMessage(userId, messages)` で送信
+  - エラー・タイムアウト時は pushMessage でジンベエの案内を送信
+- [x] 5. 検証とテスト
+  - `npm run typecheck` でコンパイル・型チェック確認
+  - 動作確認スクリプト（`backend/scripts/try-station-aquarium-agent.ts`）を作成し、S1（神戸駅など）・S2（彦根駅60分など）の動作検証

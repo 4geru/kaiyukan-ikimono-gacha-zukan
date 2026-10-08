@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>判断ログと安全対策 設計レビュー（#832）</title>
+<style>
+  :root {
+    --bg: #f4f8f8; --surface: #ffffff; --ink: #14303a; --muted: #5b7380; --line: #d6e3e6;
+    --accent: #1f8a8a; --accent-soft: #e2f3f2; --warn: #c2551f; --warn-soft: #fdeee6;
+    --good: #2e7d4f; --good-soft: #e5f4ea; --p1: #4a6fd1; --p1-soft: #e8eefb; --p2: #8b5bc7; --p2-soft: #f1eafa;
+    --p3: #c2551f; --p3-soft: #fdeee6; --code-bg: #0f2228; --code-ink: #d7eef0;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1a1e; --surface: #16252b; --ink: #e3eef0; --muted: #9db3bb; --line: #2a3f47;
+      --accent: #4fc2c0; --accent-soft: #1b3436; --warn: #f0905e; --warn-soft: #3a261d;
+      --good: #6cc790; --good-soft: #1d3326; --p1: #8aa6f0; --p1-soft: #1e2840; --p2: #b996e8; --p2-soft: #2a2238;
+      --p3: #f0905e; --p3-soft: #3a261d; --code-bg: #0a1215; --code-ink: #cfe6e8;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1a1e; --surface: #16252b; --ink: #e3eef0; --muted: #9db3bb; --line: #2a3f47;
+    --accent: #4fc2c0; --accent-soft: #1b3436; --warn: #f0905e; --warn-soft: #3a261d;
+    --good: #6cc790; --good-soft: #1d3326; --p1: #8aa6f0; --p1-soft: #1e2840; --p2: #b996e8; --p2-soft: #2a2238;
+    --p3: #f0905e; --p3-soft: #3a261d; --code-bg: #0a1215; --code-ink: #cfe6e8;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.75 "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", system-ui, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 20px 80px; }
+  .kicker { color: var(--accent); font-weight: 700; letter-spacing: .08em; font-size: 13px; }
+  h1 { font-size: 28px; line-height: 1.4; margin: 6px 0 10px; }
+  .lead { color: var(--muted); margin: 0 0 8px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  h2 { font-size: 21px; margin: 48px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  h2 .no { color: var(--accent); margin-right: 8px; font-variant-numeric: tabular-nums; }
+  h3 { font-size: 16px; margin: 0 0 6px; }
+  p { margin: 6px 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+  .verdict { border-left: 6px solid var(--accent); background: var(--accent-soft); }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 860px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  ul { margin: 6px 0; padding-left: 1.2em; }
+  li { margin: 3px 0; }
+  .pill { display: inline-block; font-size: 12px; padding: 0 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 700; white-space: nowrap; }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.good { background: var(--good-soft); color: var(--good); }
+  .pill.muted { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+  .have h3 { color: var(--good); } .lack h3 { color: var(--warn); }
+  .have { border-top: 5px solid var(--good); } .lack { border-top: 5px solid var(--warn); }
+  .tablebox { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+  table { border-collapse: collapse; width: 100%; min-width: 680px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+  thead th { font-size: 13px; color: var(--muted); background: var(--bg); }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; background: var(--accent-soft); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+  td:first-child code { white-space: nowrap; overflow-wrap: normal; }
+  pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 12px; padding: 14px 16px; overflow-x: auto;
+    font: 12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .k { color: #7fd4d0; } .s { color: #f3c98b; } .n { color: #b8a6f0; }
+  .note { color: var(--muted); font-size: 13px; }
+  /* 旅の図 */
+  .journey { display: flex; flex-direction: column; gap: 0; }
+  .stage { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: start; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+  .stage .name { font-weight: 800; color: var(--accent); }
+  .stage .name small { display: block; font-weight: 600; color: var(--muted); font-size: 12px; }
+  .stage ul { margin: 0; }
+  .arrow { text-align: center; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 0; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 800; padding: 0 7px; border-radius: 6px; margin-left: 4px; vertical-align: 1px; }
+  .tag.f1 { background: var(--p1-soft); color: var(--p1); }
+  .tag.f2 { background: var(--p2-soft); color: var(--p2); }
+  .tag.f3 { background: var(--p3-soft); color: var(--p3); }
+  .tag.ex { background: var(--good-soft); color: var(--good); }
+  .sinks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+  .sink { border-radius: 12px; padding: 12px 16px; border: 1px solid var(--line); }
+  .sink.log { background: var(--p1-soft); } .sink.fs { background: var(--p2-soft); }
+  .sink b { display: block; }
+  .sink.log b { color: var(--p1); } .sink.fs b { color: var(--p2); }
+  @media (max-width: 640px) {
+    .stage { grid-template-columns: 1fr; gap: 4px; }
+    .sinks { grid-template-columns: 1fr; }
+    h1 { font-size: 23px; }
+  }
+  /* フェーズ */
+  .phase { border-top: 6px solid var(--c); }
+  .phase .num { color: var(--c); font-weight: 800; font-size: 13px; letter-spacing: .06em; }
+  .decide { counter-reset: q; display: flex; flex-direction: column; gap: 12px; }
+  .card { min-width: 0; }
+  .decide .card { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; }
+  .decide .card::before { counter-increment: q; content: counter(q); display: grid; place-items: center;
+    width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--surface); font-weight: 800; }
+  .rec { margin-top: 4px; padding: 6px 10px; border-radius: 8px; background: var(--good-soft); }
+  .rec b { color: var(--good); }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">海遊館いきものガチャ図鑑 ／ Issue #832（親 #779）</div>
+    <h1>エージェントの判断ログと安全対策 — 設計レビュー</h1>
+    <p class="lead">審査基準「自律性が適切に管理・制御され、<b>可観測性やセキュリティへの配慮</b>を持った、信頼できる動作をするか」への対応。<b>まず Cloud Logging（Firebase と同じ GCP プロジェクト）のログ</b>から作り、その上に記録の見える化とガードを足す。</p>
+    <p class="meta">2026-10-08 作成 ／ 仕様: <code>docs/specs/832-observability-security/requirements.md</code>・<code>design.md</code> ／ 提出締切 2026-10-15</p>
+  </header>
+
+  <h2><span class="no">0</span>結論</h2>
+  <div class="card verdict">
+    <p><b>Cloud Run の出力を1行 JSON にし、エージェント1回ごとに「何を検討し・どのツールを呼び・何を選び・なぜか・コードがどこで止めたか・何秒何トークンか」を1行（<code>agent_run</code>）で残す。</b>ログは運用と集計、Firestore は利用者ごとの記録と LIFF 表示、と役割を分ける。</p>
+    <p>締切までに <b>フェーズ1（ログ・指標・アラート）とフェーズ2（判断の記録と LIFF 表示）を全部</b>、フェーズ3 は<b>入力の区切り・停止スイッチ・時間切れ時の切り替え・再送の二重処理防止・写真の7日削除</b>まで入れるのを推奨。BigQuery は使わず Log Analytics で足りる。</p>
+  </div>
+
+  <h2><span class="no">1</span>今あるもの／足りないもの</h2>
+  <p class="note">今あるものは README.md に別途まとめる。本 Issue は右側だけを扱う（コードで確認済み）。</p>
+  <div class="grid2">
+    <div class="card have">
+      <h3>今あるもの（README 側）</h3>
+      <ul>
+        <li>実行ユーザーの最小権限（UID 10001、非 root）</li>
+        <li>出力スキーマでの制約（カテゴリは候補だけの enum、雑談は2キャラ×3表情×1〜2行）</li>
+        <li>候補外カテゴリを候補内に差し替える関数</li>
+        <li>Secret Manager・LINE 署名検証</li>
+        <li>Firestore ルール（本人だけ読める・正解の入った出題中データは読めない）</li>
+        <li>位置情報を残さない／正解をエージェントに渡さない</li>
+        <li>駅エージェントの25秒タイムアウト</li>
+      </ul>
+    </div>
+    <div class="card lack">
+      <h3>足りないもの（本 Issue）</h3>
+      <ul>
+        <li><b>判断の記録</b>: クイズの理由・全候補は回答時に消える。駅エージェントは何も残さない</li>
+        <li><b>ログ</b>: 文字列だけ。項目で絞れず、1件のやり取りをつなぐ ID も無い</li>
+        <li><b>ガードの件数</b>: 差し替え・時間切れは警告文だけで数えられない</li>
+        <li><b>指標と監視</b>: 失敗率・p95・トークン・アラートが無い</li>
+        <li><b>入力</b>: 自由文を区切らず渡す・長さ上限なし</li>
+        <li><b>回数上限・停止スイッチ</b>: 無い（止めるには再デプロイ）</li>
+        <li><b>Webhook 再送の二重処理</b>: 防いでいない（回答だけは防止済み）</li>
+        <li><b>写真</b>: 非公開バケットに無期限で残る</li>
+        <li><b>依存</b>: npm audit の指摘・ベースイメージのダイジェスト未固定</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2><span class="no">2</span>リクエストの旅と、どこに何が残るか</h2>
+  <p class="note">タグはそのしくみが入るフェーズ。<span class="tag ex">既存</span><span class="tag f1">フェーズ1 ログ</span><span class="tag f2">フェーズ2 記録</span><span class="tag f3">フェーズ3 ガード</span></p>
+  <div class="journey">
+    <div class="stage"><div class="name">利用者が送る<small>LINE</small></div>
+      <ul><li>写真・自由文・ボタン（クイズ・回答）・位置情報</li></ul></div>
+    <div class="arrow">↓</div>
+    <div class="stage"><div class="name">入口<small>Webhook を受け取る</small></div>
+      <ul>
+        <li>署名を確かめる <span class="tag ex">既存</span></li>
+        <li>トレース ID をこの旅の名札にし、以降のログ全部に付ける <span class="tag f1">1</span></li>
+        <li>同じイベントの再送ならここで止める <span class="tag f3">3</span></li>
+        <li>停止スイッチ・回数上限を見る <span class="tag f3">3</span></li>
+      </ul></div>
+    <div class="arrow">↓</div>
+    <div class="stage"><div class="name">エージェントが考える<small>1回ごとに runId</small></div>
+      <ul>
+        <li>利用者の文を区切り、200文字に揃える <span class="tag f3">3</span></li>
+        <li>ツールを呼ぶ（駅の検索・水族館の検索・実在する仲間の検索）→ 1回ずつ記録 <span class="tag f1">1</span></li>
+        <li>候補を並べて1つ選び、理由を書く</li>
+      </ul></div>
+    <div class="arrow">↓</div>
+    <div class="stage"><div class="name">コードが確かめる<small>任せきりにしない</small></div>
+      <ul>
+        <li>候補外なら差し替え <span class="tag ex">既存</span>・形式不正／時間切れなら決まった手順に切り替え <span class="tag f3">3</span></li>
+        <li>介入したら必ず <code>guard</code> を1行出す <span class="tag f1">1</span></li>
+      </ul></div>
+    <div class="arrow">↓</div>
+    <div class="stage"><div class="name">記録する<small>2つの置き場所</small></div>
+      <div class="sinks">
+        <div class="sink log"><b>Cloud Logging（運用・集計）</b>全員分・全イベント。失敗率・p95・トークン・ガード件数・アラート。運用者と審査員が見る <span class="tag f1">1</span></div>
+        <div class="sink fs"><b>Firestore（利用者ごと）</b>その人の判断の結果と理由。本人だけ読める。LIFF に出す <span class="tag f2">2</span></div>
+      </div></div>
+    <div class="arrow">↓</div>
+    <div class="stage"><div class="name">返信が届く<small>LINE</small></div>
+      <ul><li>キャラクターの掛け合い＋カード（送ったことも1行残す） <span class="tag f1">1</span></li></ul></div>
+    <div class="arrow">↓</div>
+    <div class="stage"><div class="name">後から見る</div>
+      <ul>
+        <li>運用者・審査員: Logs Explorer のクエリ・ダッシュボード1枚・アラートメール</li>
+        <li>利用者: LIFF 図鑑の「なぜこの問題？」 <span class="tag f2">2</span></li>
+      </ul></div>
+  </div>
+
+  <h2><span class="no">3</span>ログの形（フェーズ1）</h2>
+  <h3>共通の項目</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>項目</th><th>内容</th><th>何に使う</th></tr></thead>
+    <tbody>
+      <tr><td><code>severity</code></td><td>INFO / WARNING / ERROR</td><td>重大度で絞る・ERROR は Error Reporting に乗る</td></tr>
+      <tr><td><code>message</code></td><td>人が読む一文（日本語）</td><td>一覧での見やすさ</td></tr>
+      <tr><td><code>event</code></td><td>種別（下の表）</td><td>絞り込みの主キー</td></tr>
+      <tr><td><code>logging.googleapis.com/trace</code></td><td>Cloud Run のトレース ID</td><td>1件のやり取り（Webhook→返信）をまとめて表示</td></tr>
+      <tr><td><code>runId</code> / <code>agent</code></td><td>エージェント1回の ID ／ quiz・station・quiz_level・quiz_pool</td><td>1回の判断の全部（ツール→判断→ガード）をつなぐ。#829・#831 と共通</td></tr>
+      <tr><td><code>userIdHash</code></td><td>LINE userId の SHA-256 先頭8桁</td><td>同じ人の流れをつなぐ（生の ID は出さない）</td></tr>
+      <tr><td><code>latencyMs</code></td><td>所要時間</td><td>p95・時間切れの監視</td></tr>
+      <tr><td><code>version</code></td><td>Cloud Run のリビジョン名</td><td>どの版の判断か（プロンプト変更の前後比較）</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin-top:22px">イベントの種類</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>event</th><th>いつ</th><th>主な項目</th></tr></thead>
+    <tbody>
+      <tr><td><code>webhook_received</code></td><td>Webhook 1件ごと</td><td>種類・postback の action・再送か</td></tr>
+      <tr><td><code>agent_run</code></td><td>エージェント1回の終了（必ず1行）</td><td>outcome・model・promptVersion・ツール回数・入出力トークン・<b>decision（候補・選択・理由）</b></td></tr>
+      <tr><td><code>tool_call</code></td><td>ツール1回</td><td>tool・ok・件数・個人情報の無い引数（分数・by=family など）</td></tr>
+      <tr><td><code>guard</code></td><td>コードが介入した</td><td>guard（差し替え・時間切れ・規則へ・切り詰め・回数上限・停止・形式不正）・action</td></tr>
+      <tr><td><code>llm_call</code></td><td>エージェント以外の LLM 1回</td><td>purpose（意図判定・雑談・写真の識別…）・トークン・入力の文字数</td></tr>
+      <tr><td><code>webhook_duplicate</code></td><td>再送を止めた</td><td>イベント ID のハッシュ</td></tr>
+      <tr><td><code>reply_sent</code></td><td>返信・push を送った</td><td>reply か push か・件数・ok</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin-top:22px">サンプル（クイズのエージェント1回）</h3>
+<pre><code>{
+  <span class="k">"severity"</span>: <span class="s">"INFO"</span>,
+  <span class="k">"message"</span>: <span class="s">"クイズのエージェントが8候補から「食物連鎖」を選びました"</span>,
+  <span class="k">"event"</span>: <span class="s">"agent_run"</span>,
+  <span class="k">"logging.googleapis.com/trace"</span>: <span class="s">"projects/kaiyukan-gacha-hackathon/traces/4bf92f35…"</span>,
+  <span class="k">"runId"</span>: <span class="s">"7c1e9a24b3f0"</span>, <span class="k">"agent"</span>: <span class="s">"quiz"</span>, <span class="k">"userIdHash"</span>: <span class="s">"3f9a1c2e"</span>, <span class="k">"animalId"</span>: <span class="s">"48"</span>,
+  <span class="k">"outcome"</span>: <span class="s">"ok"</span>, <span class="k">"latencyMs"</span>: <span class="n">27410</span>,
+  <span class="k">"model"</span>: <span class="s">"gemini-2.5-flash"</span>, <span class="k">"promptVersion"</span>: <span class="s">"quiz-agent-v3"</span>,
+  <span class="k">"toolCalls"</span>: <span class="n">2</span>, <span class="k">"inputTokens"</span>: <span class="n">3120</span>, <span class="k">"outputTokens"</span>: <span class="n">2480</span>,
+  <span class="k">"decision"</span>: {
+    <span class="k">"candidates"</span>: [<span class="s">"生息地"</span>, <span class="s">"ダジャレ"</span>, <span class="s">"食物連鎖"</span>, <span class="s">"豆知識"</span>, <span class="s">"郷土料理"</span>, <span class="s">"海外の小ネタ"</span>, <span class="s">"深度"</span>, <span class="s">"特徴"</span>],
+    <span class="k">"chosen"</span>: <span class="s">"食物連鎖"</span>, <span class="k">"proposed"</span>: <span class="s">"食物連鎖"</span>, <span class="k">"replaced"</span>: <span class="n">false</span>,
+    <span class="k">"reason"</span>: <span class="s">"プランクトンを食べる大型魚という意外性があり、この生き物ならではの問題になる"</span>,
+    <span class="k">"groundedCount"</span>: <span class="n">6</span>, <span class="k">"generatedBy"</span>: <span class="s">"agent"</span>
+  }
+}</code></pre>
+  <div class="grid2" style="margin-top:12px">
+<pre><code>{ <span class="k">"severity"</span>: <span class="s">"INFO"</span>, <span class="k">"event"</span>: <span class="s">"tool_call"</span>,
+  <span class="k">"runId"</span>: <span class="s">"a90d23e1c4b7"</span>, <span class="k">"agent"</span>: <span class="s">"station"</span>,
+  <span class="k">"tool"</span>: <span class="s">"findAquariumsByTravelTime"</span>,
+  <span class="k">"args"</span>: { <span class="k">"minutes"</span>: <span class="n">60</span> },
+  <span class="k">"ok"</span>: <span class="n">true</span>, <span class="k">"resultCount"</span>: <span class="n">2</span>, <span class="k">"latencyMs"</span>: <span class="n">1840</span> }</code></pre>
+<pre><code>{ <span class="k">"severity"</span>: <span class="s">"WARNING"</span>, <span class="k">"event"</span>: <span class="s">"guard"</span>,
+  <span class="k">"message"</span>: <span class="s">"駅の水族館エージェントを25秒で打ち切りました"</span>,
+  <span class="k">"runId"</span>: <span class="s">"a90d23e1c4b7"</span>, <span class="k">"agent"</span>: <span class="s">"station"</span>,
+  <span class="k">"guard"</span>: <span class="s">"timeout"</span>, <span class="k">"action"</span>: <span class="s">"fell_back"</span> }</code></pre>
+  </div>
+
+  <h3 style="margin-top:22px">個人情報をログに載せる／載せない</h3>
+  <div class="tablebox"><table>
+    <thead><tr><th>情報</th><th>Cloud Logging</th><th>Firestore（本人だけ）</th></tr></thead>
+    <tbody>
+      <tr><td>LINE userId</td><td><span class="pill warn">ハッシュ</span> SHA-256 先頭8桁</td><td>ドキュメントのパス（既存）</td></tr>
+      <tr><td>自由文（雑談・駅の質問）</td><td><span class="pill muted">出さない</span> 文字数と切り詰めたかだけ</td><td><span class="pill muted">残さない</span></td></tr>
+      <tr><td>エージェントが確定した起点駅・分数</td><td><span class="pill good">出す</span></td><td><span class="pill good">残す</span></td></tr>
+      <tr><td>写真</td><td><span class="pill muted">出さない</span> 識別結果（生きもの ID・確からしさ）だけ</td><td><span class="pill muted">残さない</span>（GCS で7日後に削除）</td></tr>
+      <tr><td>位置情報</td><td><span class="pill muted">出さない</span>（既存方針）</td><td><span class="pill muted">残さない</span></td></tr>
+      <tr><td>エージェントの理由・候補</td><td><span class="pill good">出す</span></td><td><span class="pill good">残す</span>（選ばれなかった候補の選択肢・正解は残さない）</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin-top:22px">指標・アラート・費用</h3>
+  <div class="grid3">
+    <div class="card"><h3>ログベースの指標（5つ）</h3>
+      <ul><li>エージェントの実行回数（agent × outcome）→ 失敗率</li><li>所要時間の分布 → p95</li><li>トークン量の分布 → 費用</li><li>ガードの介入回数（種類別）</li><li>LLM 呼び出し回数（用途 × 成否）</li></ul></div>
+    <div class="card"><h3>アラート・画面</h3>
+      <ul><li>15分で失敗率 30% 超（5件以上）→ メール</li><li>ERROR が15分で10件超 → メール</li><li>ダッシュボード1枚（4グラフ）</li><li>集計は <b>Log Analytics の SQL</b>。BigQuery への書き出しは不要</li></ul></div>
+    <div class="card"><h3>保存期間と費用</h3>
+      <ul><li>ログ: 30日（既定・無料）。取り込み月 50 GiB まで無料、想定は月 0.3 GB 程度</li><li>Firestore の駅の記録: 30日で自動削除</li><li>再送防止の記録: 1日で自動削除</li><li>アラート条件は少数なので月数十円以内の見込み</li></ul></div>
+  </div>
+
+  <h2><span class="no">4</span>フェーズ分け</h2>
+  <div class="grid3">
+    <div class="card phase" style="--c: var(--p1)"><div class="num">フェーズ1 ／ ログ</div>
+      <h3>まず追えるようにする</h3>
+      <ul><li>1行 JSON・trace・runId・ハッシュ</li><li><code>agent_run</code>・<code>tool_call</code>・<code>guard</code>・<code>llm_call</code></li><li>指標5つ・アラート・ダッシュボード</li></ul></div>
+    <div class="card phase" style="--c: var(--p2)"><div class="num">フェーズ2 ／ 記録の見える化</div>
+      <h3>利用者にも見えるようにする</h3>
+      <ul><li>クイズ: 理由・検討したカテゴリ・runId を回答履歴に引き継ぐ</li><li>駅: 利用者ごとの判断の記録（30日）</li><li>LIFF「なぜこの問題？」</li></ul></div>
+    <div class="card phase" style="--c: var(--p3)"><div class="num">フェーズ3 ／ ガード</div>
+      <h3>止められるようにする</h3>
+      <ul><li>入力の区切り・200文字上限・レッドチーム試験（15〜20件）</li><li>停止スイッチ（Firestore で1分以内に効く）</li><li>クイズの45秒時間切れ → 決まった手順で出題</li><li>再送の二重処理防止・写真の7日削除・ダイジェスト固定</li><li>回数上限（1人1日）・npm audit</li></ul></div>
+  </div>
+
+  <h2><span class="no">5</span>締切（10/15）までの推奨範囲と分担</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>中身</th><th>締切までに</th><th>担当</th><th>依存</th></tr></thead>
+    <tbody>
+      <tr><td><b>T0</b> ログの土台（1行 JSON・trace・runId・終了時に1行）と Webhook の入口</td><td><span class="pill good">入れる</span></td><td>Sonnet</td><td>—</td></tr>
+      <tr><td><b>T1</b> クイズ: 判断ログ・ツール記録・45秒で決まった手順へ・回答履歴への引き継ぎ</td><td><span class="pill good">入れる</span></td><td>Sonnet</td><td>T0</td></tr>
+      <tr><td><b>T2</b> 駅: 判断ログ・3ツールの記録・利用者ごとの記録とルール</td><td><span class="pill good">入れる</span></td><td>Sonnet</td><td>T0</td></tr>
+      <tr><td><b>T3</b> 入力の区切りと上限・停止スイッチ・再送防止・LLM 呼び出しの記録</td><td><span class="pill good">入れる</span></td><td>Sonnet</td><td>T0</td></tr>
+      <tr><td><b>T4</b> 指標・アラート・ダッシュボード・写真の削除ルール・Makefile・ダイジェスト固定</td><td><span class="pill good">入れる</span></td><td>Haiku</td><td>—</td></tr>
+      <tr><td><b>T5</b> レッドチーム試験のスクリプト（試験文と機械判定）</td><td><span class="pill good">入れる</span></td><td>Haiku</td><td>T3（実行のみ）</td></tr>
+      <tr><td><b>T6</b> LIFF「なぜこの問題？」</td><td><span class="pill good">入れる</span></td><td>Sonnet</td><td>T1 のデータ形</td></tr>
+      <tr><td>回数上限（1人1日）</td><td><span class="pill warn">余裕があれば</span></td><td>Sonnet</td><td>T3</td></tr>
+      <tr><td>npm audit の解消</td><td><span class="pill warn">余裕があれば</span></td><td>Haiku</td><td>—</td></tr>
+      <tr><td><b>T7</b> Log Analytics 有効化・通知先メール・TTL 適用・デプロイ・デモ録画</td><td><span class="pill">人</span></td><td>ユーザー</td><td>T0〜T6</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">T0 で関数の形を決めれば T1〜T4 は並列にできる。T1〜T3 は同じ入口のファイルを触るので、触る処理を分けて順にマージする。</p>
+
+  <h2><span class="no">6</span>審査員・デモでの見せ方</h2>
+  <div class="grid2">
+    <div class="card"><h3>Logs Explorer のクエリ</h3>
+<pre><code>resource.type="cloud_run_revision"
+resource.labels.service_name="kaiyukan-gacha-bot"
+<span class="k"># ① 判断の一覧</span>
+jsonPayload.event="agent_run"
+<span class="k"># ③ コードが介入した回（管理・制御）</span>
+jsonPayload.event="guard"
+<span class="k"># ④ 1回の判断の全部</span>
+jsonPayload.runId="7c1e9a24b3f0"
+<span class="k"># ⑥ 失敗・時間切れ</span>
+jsonPayload.event="agent_run" jsonPayload.outcome!="ok"</code></pre>
+    </div>
+    <div class="card"><h3>デモ動画（約40秒）</h3>
+      <ol style="margin:6px 0;padding-left:1.3em">
+        <li>LINE で「クイズ」→ 問題が届く</li>
+        <li>クエリ④で、実在種の検索 → 8候補・選んだもの・理由・27秒・トークンを並べて見せる</li>
+        <li>クエリ③で、差し替え・時間切れ・停止の行を見せる（「任せきりにせず、コードが止める」）</li>
+        <li>ダッシュボード1枚（失敗率・p95・ガード件数・トークン）</li>
+        <li>LIFF でその問題の「なぜこの問題？」を開く（「判断は本人にも見える」）</li>
+      </ol>
+      <p class="note">ガードの行は本番で自然に出るとは限らないため、停止スイッチを一時的に入れる・評価スクリプトを通すなどで出してよい。</p>
+    </div>
+  </div>
+
+  <h2><span class="no">7</span>判断してほしい点</h2>
+  <div class="decide">
+    <div class="card"><div><h3>利用者 ID のハッシュ方式</h3>
+      <p>SHA-256 の先頭8桁（#829 と同じ）か、秘密の値を混ぜた HMAC か。</p>
+      <div class="rec"><b>推奨:</b> SHA-256 先頭8桁。LINE userId は推測できない値で、Secret を増やさず #829 と値が揃う。</div></div></div>
+    <div class="card"><div><h3>判断の記録の置き場所</h3>
+      <p>クイズは回答履歴に引き継ぎ＋駅は利用者ごとの <code>agentRuns</code>、か、全部を <code>agentRuns</code> に寄せるか。</p>
+      <div class="rec"><b>推奨:</b> 前者。クイズの判断は「その1問」と一緒に見る方が分かりやすい。選ばれなかった候補の選択肢・正解は残さない（作り置き #831 で後から出題され得るため）。</div></div></div>
+    <div class="card"><div><h3>停止スイッチの置き場所</h3>
+      <p>Firestore の設定ドキュメントか、環境変数か。</p>
+      <div class="rec"><b>推奨:</b> Firestore（60秒キャッシュ）。コンソールで書き換えれば1分以内に効き、再デプロイが要らない。</div></div></div>
+    <div class="card"><div><h3>回数上限と写真の保持期間</h3>
+      <p>回数上限（クイズ30・駅20・雑談100・写真30 回/日）を締切前に入れるか。写真は7日か30日か。</p>
+      <div class="rec"><b>推奨:</b> 回数上限は締切後でよい（停止スイッチで代える）。写真は識別の後で使わないので7日で自動削除。</div></div></div>
+    <div class="card"><div><h3>締切までの範囲</h3>
+      <p>5章の「入れる」すべて＋BigQuery は使わない、でよいか。</p>
+      <div class="rec"><b>推奨:</b> その通り。Cloud Trace へのスパン送信・管理画面・LLM による自動採点はスコープ外。</div></div></div>
+  </div>
+
+  <footer>設計担当: Claude（Opus） ／ 読んだもの: CLAUDE.md・server.ts・quizAgent.ts・stationAquariumAgent.ts・characterChat.ts・firestore.rules・Dockerfile・Makefile・#829 design の 6.5／10 章</footer>
+</div>
+</body>
+</html>

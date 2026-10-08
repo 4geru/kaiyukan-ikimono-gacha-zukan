@@ -1,0 +1,236 @@
+{
+  "startedAt": "2026-10-07T14:49:13.996Z",
+  "node": "v26.3.0",
+  "model": "gemini-2.5-flash",
+  "runs": 3,
+  "animals": [
+    "ジンベエザメ",
+    "ナンヨウマンタ"
+  ],
+  "methods": [
+    "before",
+    "parallel",
+    "workflow"
+  ],
+  "samples": [
+    {
+      "animal": "ジンベエザメ",
+      "method": "before",
+      "run": 1,
+      "ok": true,
+      "totalMs": 26896,
+      "selectedCategory": "類似した仲間",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "parallel",
+      "run": 1,
+      "ok": true,
+      "totalMs": 26933,
+      "timings": {
+        "generateMs": 17775,
+        "selectMs": 9157,
+        "failedCount": 0
+      },
+      "selectedCategory": "郷土料理",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "workflow",
+      "run": 1,
+      "ok": true,
+      "totalMs": 30185,
+      "timings": {
+        "generateMs": 18797,
+        "selectMs": 11381,
+        "failedCount": 0
+      },
+      "selectedCategory": "食物連鎖",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "before",
+      "run": 1,
+      "ok": false,
+      "totalMs": 33215,
+      "error": "ADKエージェントからの最終レスポンスが取得できませんでした (animalId: 206)"
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "parallel",
+      "run": 1,
+      "ok": true,
+      "totalMs": 28419,
+      "timings": {
+        "generateMs": 17108,
+        "selectMs": 11310,
+        "failedCount": 0
+      },
+      "selectedCategory": "進化の歴史",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "workflow",
+      "run": 1,
+      "ok": true,
+      "totalMs": 41421,
+      "timings": {
+        "generateMs": 16852,
+        "selectMs": 24564,
+        "failedCount": 0
+      },
+      "selectedCategory": "特徴",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "before",
+      "run": 2,
+      "ok": false,
+      "totalMs": 3169,
+      "error": "ADKエージェントからの最終レスポンスが取得できませんでした (animalId: 48)"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "parallel",
+      "run": 2,
+      "ok": true,
+      "totalMs": 28695,
+      "timings": {
+        "generateMs": 20223,
+        "selectMs": 8471,
+        "failedCount": 0
+      },
+      "selectedCategory": "豆知識",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "workflow",
+      "run": 2,
+      "ok": true,
+      "totalMs": 31273,
+      "timings": {
+        "generateMs": 15003,
+        "selectMs": 16263,
+        "failedCount": 0
+      },
+      "selectedCategory": "食物連鎖",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "before",
+      "run": 2,
+      "ok": true,
+      "totalMs": 23815,
+      "selectedCategory": "豆知識",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "parallel",
+      "run": 2,
+      "ok": true,
+      "totalMs": 33810,
+      "timings": {
+        "generateMs": 20716,
+        "selectMs": 13094,
+        "failedCount": 0
+      },
+      "selectedCategory": "特徴",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "workflow",
+      "run": 2,
+      "ok": true,
+      "totalMs": 29927,
+      "timings": {
+        "generateMs": 19626,
+        "selectMs": 10285,
+        "failedCount": 0
+      },
+      "selectedCategory": "深度",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "before",
+      "run": 3,
+      "ok": false,
+      "totalMs": 13220,
+      "error": "ADKエージェントからの最終レスポンスが取得できませんでした (animalId: 48)"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "parallel",
+      "run": 3,
+      "ok": true,
+      "totalMs": 27479,
+      "timings": {
+        "generateMs": 18741,
+        "selectMs": 8738,
+        "failedCount": 0
+      },
+      "selectedCategory": "食物連鎖",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "workflow",
+      "run": 3,
+      "ok": true,
+      "totalMs": 25043,
+      "timings": {
+        "generateMs": 15078,
+        "selectMs": 9960,
+        "failedCount": 0
+      },
+      "selectedCategory": "豆知識",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "before",
+      "run": 3,
+      "ok": true,
+      "totalMs": 25890,
+      "selectedCategory": "海外の小ネタ",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "parallel",
+      "run": 3,
+      "ok": true,
+      "totalMs": 25977,
+      "timings": {
+        "generateMs": 18039,
+        "selectMs": 7938,
+        "failedCount": 0
+      },
+      "selectedCategory": "進化の歴史",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ナンヨウマンタ",
+      "method": "workflow",
+      "run": 3,
+      "ok": true,
+      "totalMs": 40483,
+      "timings": {
+        "generateMs": 31139,
+        "selectMs": 9341,
+        "failedCount": 0
+      },
+      "selectedCategory": "特徴",
+      "consideredCount": 13
+    }
+  ]
+}

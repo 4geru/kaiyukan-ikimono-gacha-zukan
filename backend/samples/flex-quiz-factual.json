@@ -1,0 +1,184 @@
+{
+  "type": "flex",
+  "altText": "ジンベエザメは世界で一番大きな魚だって知ってた？じゃあ、そんな大きなジンベエザメはいったい何を食べると思う？",
+  "contents": {
+    "type": "bubble",
+    "header": {
+      "type": "box",
+      "layout": "vertical",
+      "backgroundColor": "#4A90D9",
+      "paddingAll": "md",
+      "contents": [
+        {
+          "type": "text",
+          "text": "🐠 特徴",
+          "color": "#FFFFFF",
+          "weight": "bold",
+          "size": "sm"
+        }
+      ]
+    },
+    "body": {
+      "type": "box",
+      "layout": "vertical",
+      "spacing": "md",
+      "contents": [
+        {
+          "type": "text",
+          "text": "ジンベエザメは世界で一番大きな魚だって知ってた？じゃあ、そんな大きなジンベエザメはいったい何を食べると思う？",
+          "weight": "bold",
+          "size": "md",
+          "wrap": true
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "spacing": "md",
+          "alignItems": "center",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "vertical",
+              "width": "24px",
+              "height": "24px",
+              "cornerRadius": "12px",
+              "backgroundColor": "#FF6B6B",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "A",
+                  "color": "#FFFFFF",
+                  "weight": "bold",
+                  "size": "xs",
+                  "align": "center"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "大きな魚やアザラシ",
+              "size": "sm",
+              "wrap": true,
+              "flex": 1
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "spacing": "md",
+          "alignItems": "center",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "vertical",
+              "width": "24px",
+              "height": "24px",
+              "cornerRadius": "12px",
+              "backgroundColor": "#4ECDC4",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "B",
+                  "color": "#FFFFFF",
+                  "weight": "bold",
+                  "size": "xs",
+                  "align": "center"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "小さなプランクトン",
+              "size": "sm",
+              "wrap": true,
+              "flex": 1
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "margin": "md"
+        },
+        {
+          "type": "box",
+          "layout": "horizontal",
+          "spacing": "md",
+          "alignItems": "center",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "vertical",
+              "width": "24px",
+              "height": "24px",
+              "cornerRadius": "12px",
+              "backgroundColor": "#FFD166",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "C",
+                  "color": "#FFFFFF",
+                  "weight": "bold",
+                  "size": "xs",
+                  "align": "center"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "サンゴ",
+              "size": "sm",
+              "wrap": true,
+              "flex": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "quickReply": {
+    "items": [
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "A",
+          "data": "action=answerQuiz&animalId=48&choiceIndex=0",
+          "displayText": "A. 大きな魚やアザラシ"
+        }
+      },
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "B",
+          "data": "action=answerQuiz&animalId=48&choiceIndex=1",
+          "displayText": "B. 小さなプランクトン"
+        }
+      },
+      {
+        "type": "action",
+        "action": {
+          "type": "postback",
+          "label": "C",
+          "data": "action=answerQuiz&animalId=48&choiceIndex=2",
+          "displayText": "C. サンゴ"
+        }
+      }
+    ]
+  }
+}

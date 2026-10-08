@@ -1,0 +1,85 @@
+{
+  "startedAt": "2026-10-08T03:45:42.684Z",
+  "node": "v26.3.0",
+  "runs": 1,
+  "animals": [
+    "ジンベエザメ"
+  ],
+  "samples": [
+    {
+      "animal": "ジンベエザメ",
+      "method": "A",
+      "run": 1,
+      "ok": true,
+      "ms": 36728,
+      "usage": {
+        "calls": 2,
+        "input": 7110,
+        "output": 1085,
+        "thinking": 4965,
+        "total": 13160
+      },
+      "note": "選択=海外の小ネタ 候補=13"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-prod",
+      "run": 1,
+      "ok": true,
+      "ms": 11412,
+      "usage": {
+        "calls": 1,
+        "input": 2018,
+        "output": 107,
+        "thinking": 828,
+        "total": 2953
+      },
+      "note": "豆知識"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "B-t0",
+      "run": 1,
+      "ok": true,
+      "ms": 7593,
+      "usage": {
+        "calls": 1,
+        "input": 2016,
+        "output": 103,
+        "thinking": 0,
+        "total": 2119
+      },
+      "note": "深度"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "C",
+      "run": 1,
+      "ok": true,
+      "ms": 13396,
+      "usage": {
+        "calls": 1,
+        "input": 2058,
+        "output": 192,
+        "thinking": 1998,
+        "total": 4248
+      },
+      "note": "pass"
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "D",
+      "run": 1,
+      "ok": true,
+      "ms": 2090,
+      "usage": {
+        "calls": 1,
+        "input": 371,
+        "output": 130,
+        "thinking": 0,
+        "total": 501
+      },
+      "note": "idx=3"
+    }
+  ]
+}

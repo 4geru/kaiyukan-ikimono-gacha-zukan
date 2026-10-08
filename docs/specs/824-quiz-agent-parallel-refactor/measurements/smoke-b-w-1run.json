@@ -1,0 +1,43 @@
+{
+  "startedAt": "2026-10-07T14:46:31.682Z",
+  "node": "v26.3.0",
+  "model": "gemini-2.5-flash",
+  "runs": 1,
+  "animals": [
+    "ジンベエザメ"
+  ],
+  "methods": [
+    "parallel",
+    "workflow"
+  ],
+  "samples": [
+    {
+      "animal": "ジンベエザメ",
+      "method": "parallel",
+      "run": 1,
+      "ok": true,
+      "totalMs": 28581,
+      "timings": {
+        "generateMs": 16951,
+        "selectMs": 11629,
+        "failedCount": 0
+      },
+      "selectedCategory": "ダジャレ",
+      "consideredCount": 13
+    },
+    {
+      "animal": "ジンベエザメ",
+      "method": "workflow",
+      "run": 1,
+      "ok": true,
+      "totalMs": 40856,
+      "timings": {
+        "generateMs": 30579,
+        "selectMs": 10265,
+        "failedCount": 0
+      },
+      "selectedCategory": "食物連鎖",
+      "consideredCount": 13
+    }
+  ]
+}
